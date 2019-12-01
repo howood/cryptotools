@@ -25,5 +25,18 @@ func Test_CryptoAes(t *testing.T) {
 	if decryptdata != testdata {
 		t.Fatal("failed CryptoAes ")
 	}
+
+	if _, err := cryptoaes.DecryptWithBase64("aaaaaaa"); err == nil {
+		t.Fatal("failed DecryptWithBase64 ")
+	} else {
+		t.Logf("failed test %#v", err)
+	}
+
+	if _, err := NewCryptoAes([]byte("sssss"), []byte(identifier)); err == nil {
+		t.Fatal("failed NewCryptoAes ")
+	} else {
+		t.Logf("failed test %#v", err)
+	}
+
 	t.Log("success CryptoAes")
 }

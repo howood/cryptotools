@@ -17,7 +17,7 @@ func ConvertToJSONWebKey(input []byte) (jose.JSONWebKey, error) {
 func ConvertToRSAPublicFromJWK(key *jose.JSONWebKey) (*rsa.PublicKey, error) {
 	res, ok := key.Key.(*rsa.PublicKey)
 	if !ok {
-		return res, errors.New("Could not convert key to RSA Private Key")
+		return res, errors.New("Could not convert key to RSA Public Key")
 	}
 	return res, nil
 }

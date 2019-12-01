@@ -6,8 +6,8 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+
 	"github.com/howood/cryptotools/internal/entity"
-	"io/ioutil"
 )
 
 const (
@@ -16,24 +16,6 @@ const (
 	blockTypeRsaPublicKey  = "RSA PUBLIC KEY"
 	blockTypePublicKey     = "PUBLIC KEY"
 )
-
-// ReadPrivateKeyFromFile reads privatekey From File to entity struct
-func ReadPrivateKeyFromFile(filepath string, rsakey *entity.RsaKey) error {
-	bytes, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return err
-	}
-	return ReadPrivateKey(bytes, rsakey)
-}
-
-// ReadPublicKeyFromFile reads publickey From File to entity struct
-func ReadPublicKeyFromFile(filepath string, rsakey *entity.RsaKey) error {
-	bytes, err := ioutil.ReadFile(filepath)
-	if err != nil {
-		return err
-	}
-	return ReadPublicKey(bytes, rsakey)
-}
 
 // ReadPrivateKey reads private to entity struct
 func ReadPrivateKey(bytedata []byte, rsakey *entity.RsaKey) error {

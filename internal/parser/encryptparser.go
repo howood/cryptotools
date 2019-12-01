@@ -17,7 +17,7 @@ const (
 	blockTypePublicKey     = "PUBLIC KEY"
 )
 
-// ReadPrivateKey reads privatekey From File to entity struct
+// ReadPrivateKeyFromFile reads privatekey From File to entity struct
 func ReadPrivateKeyFromFile(filepath string, rsakey *entity.RsaKey) error {
 	bytes, err := ioutil.ReadFile(filepath)
 	if err != nil {

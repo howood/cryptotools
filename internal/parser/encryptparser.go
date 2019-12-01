@@ -17,23 +17,26 @@ const (
 	blockTypePublicKey     = "PUBLIC KEY"
 )
 
-func ReadPrivateKey(filepath string, rsakey *entity.RsaKey) error {
+// ReadPrivateKey reads privatekey From File to entity struct
+func ReadPrivateKeyFromFile(filepath string, rsakey *entity.RsaKey) error {
 	bytes, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return err
 	}
-	return ReadPrivateKeyFromByte(bytes, rsakey)
+	return ReadPrivateKey(bytes, rsakey)
 }
 
-func ReadPublicKey(filepath string, rsakey *entity.RsaKey) error {
+// ReadPublicKeyFromFile reads publickey From File to entity struct
+func ReadPublicKeyFromFile(filepath string, rsakey *entity.RsaKey) error {
 	bytes, err := ioutil.ReadFile(filepath)
 	if err != nil {
 		return err
 	}
-	return ReadPublicKeyFromByte(bytes, rsakey)
+	return ReadPublicKey(bytes, rsakey)
 }
 
-func ReadPrivateKeyFromByte(bytedata []byte, rsakey *entity.RsaKey) error {
+// ReadPrivateKey reads private to entity struct
+func ReadPrivateKey(bytedata []byte, rsakey *entity.RsaKey) error {
 	block, _ := pem.Decode(bytedata)
 	if block == nil {
 		return errors.New("failed to decode private key data")
@@ -42,8 +45,7 @@ func ReadPrivateKeyFromByte(bytedata []byte, rsakey *entity.RsaKey) error {
 	var err error
 	switch block.Type {
 	case blockTypeRsaPrivateKey:
-		key, err = x509.ParsePKCS1PrivateKey(block.Bytes)
-		if err != nil {
+		if key, err = x509.ParsePKCS1PrivateKey(block.Bytes); err != nil {
 			return err
 		}
 	case blockTypePrivateKey:
@@ -52,8 +54,7 @@ func ReadPrivateKeyFromByte(bytedata []byte, rsakey *entity.RsaKey) error {
 			return err
 		}
 		var ok bool
-		key, ok = keyInterface.(*rsa.PrivateKey)
-		if !ok {
+		if key, ok = keyInterface.(*rsa.PrivateKey); !ok {
 			return errors.New("not RSA private key")
 		}
 	default:
@@ -64,7 +65,8 @@ func ReadPrivateKeyFromByte(bytedata []byte, rsakey *entity.RsaKey) error {
 	return nil
 }
 
-func ReadPublicKeyFromByte(bytedata []byte, rsakey *entity.RsaKey) error {
+// ReadPublicKey reads publickey to entity struct
+func ReadPublicKey(bytedata []byte, rsakey *entity.RsaKey) error {
 	block, _ := pem.Decode(bytedata)
 	if block == nil {
 		return errors.New("failed to decode PEM block containing public key")
@@ -73,8 +75,7 @@ func ReadPublicKeyFromByte(bytedata []byte, rsakey *entity.RsaKey) error {
 	var err error
 	switch block.Type {
 	case blockTypeRsaPublicKey:
-		key, err = x509.ParsePKCS1PublicKey(block.Bytes)
-		if err != nil {
+		if key, err = x509.ParsePKCS1PublicKey(block.Bytes); err != nil {
 			return err
 		}
 	case blockTypePublicKey:
@@ -82,10 +83,9 @@ func ReadPublicKeyFromByte(bytedata []byte, rsakey *entity.RsaKey) error {
 		if err != nil {
 			return err
 		}
-		if keyconverted, ok := keyInterface.(*rsa.PublicKey); !ok {
+		var ok bool
+		if key, ok = keyInterface.(*rsa.PublicKey); !ok {
 			return errors.New("not RSA public key")
-		} else {
-			key = keyconverted
 		}
 	default:
 		return fmt.Errorf("invalid public key type : %s", block.Type)
@@ -94,40 +94,43 @@ func ReadPublicKeyFromByte(bytedata []byte, rsakey *entity.RsaKey) error {
 	return nil
 }
 
+// DecodePrivateKeyPKCS1 decodes PKCS1 private key to bytes
 func DecodePrivateKeyPKCS1(pubkey *rsa.PrivateKey) []byte {
-	prikey_bytes := x509.MarshalPKCS1PrivateKey(pubkey)
+	prikeybytes := x509.MarshalPKCS1PrivateKey(pubkey)
 	pemdata := pem.EncodeToMemory(
 		&pem.Block{
 			Type:  blockTypeRsaPrivateKey,
-			Bytes: prikey_bytes,
+			Bytes: prikeybytes,
 		},
 	)
 	return pemdata
 }
 
+// DecodePrivateKeyPKCS8 decodes PKCS8 private key to bytes
 func DecodePrivateKeyPKCS8(pubkey *rsa.PrivateKey) ([]byte, error) {
-	prikey_bytes, err := x509.MarshalPKCS8PrivateKey(pubkey)
+	prikeybytes, err := x509.MarshalPKCS8PrivateKey(pubkey)
 	if err != nil {
 		return nil, err
 	}
 	pemdata := pem.EncodeToMemory(
 		&pem.Block{
 			Type:  blockTypePrivateKey,
-			Bytes: prikey_bytes,
+			Bytes: prikeybytes,
 		},
 	)
 	return pemdata, nil
 }
 
+// DecodePublicKey decodes public key to bytes
 func DecodePublicKey(pubkey *rsa.PublicKey) ([]byte, error) {
-	pubkey_bytes, err := x509.MarshalPKIXPublicKey(pubkey)
+	prikeybytes, err := x509.MarshalPKIXPublicKey(pubkey)
 	if err != nil {
 		return nil, err
 	}
 	pemdata := pem.EncodeToMemory(
 		&pem.Block{
 			Type:  blockTypePublicKey,
-			Bytes: pubkey_bytes,
+			Bytes: prikeybytes,
 		},
 	)
 	return pemdata, nil

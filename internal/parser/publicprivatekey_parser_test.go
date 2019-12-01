@@ -31,7 +31,7 @@ func Test_ConvertPublicKey(t *testing.T) {
 	}
 	//t.Log(fmt.Sprintf("%v", string(pempublickey)))
 	rsakey := &entity.RsaKey{}
-	err = ReadPublicKeyFromByte(pempublickey, rsakey)
+	err = ReadPublicKey(pempublickey, rsakey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -69,7 +69,7 @@ func Test_ConvertPrivatecKey(t *testing.T) {
 	pemprikey1 := DecodePrivateKeyPKCS1(privatekey)
 	//t.Log(fmt.Sprintf("%v", string(pemprikey1)))
 	rsakey := &entity.RsaKey{}
-	err = ReadPrivateKeyFromByte(pemprikey1, rsakey)
+	err = ReadPrivateKey(pemprikey1, rsakey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -84,7 +84,7 @@ func Test_ConvertPrivatecKey(t *testing.T) {
 	}
 	//t.Log(fmt.Sprintf("%v", string(pemprikey2)))
 	rsakey = &entity.RsaKey{}
-	err = ReadPrivateKeyFromByte(pemprikey2, rsakey)
+	err = ReadPrivateKey(pemprikey2, rsakey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}

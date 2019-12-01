@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"crypto/rsa"
 	"reflect"
 	"testing"
 
@@ -358,6 +359,11 @@ func Test_ConvertPublicKey(t *testing.T) {
 	pempublickey, err := DecodePublicKey(publickey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
+	}
+	if _, err := DecodePublicKey(&rsa.PublicKey{}); err == nil {
+		t.Fatal("no error to decode public key")
+	} else {
+		t.Logf("failed test %#v", err)
 	}
 	//t.Log(fmt.Sprintf("%v", string(pempublickey)))
 	rsakey := &entity.RsaKey{}

@@ -9,3 +9,15 @@
 [license]: https://github.com/howood/cryptotools/blob/master/LICENSE
 
 # cryptotools
+
+CryptoTools provides Encryption Tools with Common Key and Public Key.
+
+# Install
+
+```
+$ go get -u github.com/howood/cryptotools
+```
+
+# Usage
+
+See [examples](examples/)

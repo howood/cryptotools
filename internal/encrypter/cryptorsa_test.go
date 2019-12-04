@@ -97,6 +97,9 @@ func Test_CryptoRsa(t *testing.T) {
 		t.Fatalf("failed test %#v", err)
 	}
 	decryptdata, err := cryptorsa.DecryptWithBase64(encryptdata)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
 	if reflect.DeepEqual(decryptdata, []byte(testdata)) == false {
 		t.Fatal("failed CryptoRsa ")
 	}

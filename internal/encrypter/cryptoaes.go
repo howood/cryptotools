@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-// CryptoAes is AES encryption struct
+// CryptoAes represents AES encryption struct
 type CryptoAes struct {
 	cipherBlock cipher.Block
 	commonIV    []byte

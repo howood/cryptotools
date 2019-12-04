@@ -19,3 +19,13 @@ func NewPublicKeyCrypto(bits int) (*publickeycrypto.PublicKeyCrypto, error) {
 	}
 	return publickeycrypto.NewPublicKeyCrypto(bits)
 }
+
+// NewPublicKeyCryptoWithPEMPublicKey create PublicKeyCrypto with PEM PublicKey
+func NewPublicKeyCryptoWithPEMPublicKey(publickey []byte) (*publickeycrypto.PublicKeyCrypto, error) {
+	return publickeycrypto.NewPublicKeyCryptoWithPEMPublicKey(publickey)
+}
+
+// NewPublicKeyCryptoWithJWKPublicKey create PublicKeyCrypto with JWK PublicKey
+func NewPublicKeyCryptoWithJWKPublicKey(publickey []byte) (*publickeycrypto.PublicKeyCrypto, error) {
+	return publickeycrypto.NewPublicKeyCryptoWithJWKPublicKey(publickey)
+}

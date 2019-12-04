@@ -1,10 +1,13 @@
 package publickeycrypto
 
 import (
+	"errors"
+
 	"github.com/howood/cryptotools/internal/encrypter"
 	"github.com/howood/cryptotools/internal/entity"
 	"github.com/howood/cryptotools/internal/generator"
 	"github.com/howood/cryptotools/internal/parser"
+	uuid "github.com/satori/go.uuid"
 )
 
 // PublicKeyCrypto represents PublicKeyCrypto struct
@@ -22,6 +25,24 @@ func NewPublicKeyCrypto(bits int) (*PublicKeyCrypto, error) {
 	}, err
 }
 
+// NewPublicKeyCryptoWithPEMPublicKey create PublicKeyCrypto struct with PEM Public Key
+func NewPublicKeyCryptoWithPEMPublicKey(publickey []byte) (*PublicKeyCrypto, error) {
+	rsakey, err := generateRsaKeyWithPEMPublicKey(publickey)
+	return &PublicKeyCrypto{
+		RsaKey:    &rsakey,
+		encrypter: encrypter.NewCryptoRsa(&rsakey),
+	}, err
+}
+
+// NewPublicKeyCryptoWithJWKPublicKey create PublicKeyCrypto struct with JWK Public Key
+func NewPublicKeyCryptoWithJWKPublicKey(publickey []byte) (*PublicKeyCrypto, error) {
+	rsakey, err := generateRsaKeyWithJWKMPublicKey(publickey)
+	return &PublicKeyCrypto{
+		RsaKey:    &rsakey,
+		encrypter: encrypter.NewCryptoRsa(&rsakey),
+	}, err
+}
+
 // Encrypt encrypts input data with publickey encryption
 func (ck *PublicKeyCrypto) Encrypt(input string) (string, error) {
 	return ck.encrypter.EncryptWithBase64([]byte(input))
@@ -29,6 +50,9 @@ func (ck *PublicKeyCrypto) Encrypt(input string) (string, error) {
 
 // Decrypt decrypts input data with publickey encryption
 func (ck *PublicKeyCrypto) Decrypt(input string) (string, error) {
+	if ck.RsaKey.PrivateKey == nil {
+		return "", errors.New("no private key available")
+	}
 	data, err := ck.encrypter.DecryptWithBase64(input)
 	if err != nil {
 		return "", err
@@ -51,6 +75,12 @@ func (ck *PublicKeyCrypto) GetPublicKey() ([]byte, error) {
 	return parser.DecodePublicKey(ck.RsaKey.PublicKey)
 }
 
+// GetPublicKeyWithJWK gets jwk publickey
+func (ck *PublicKeyCrypto) GetPublicKeyWithJWK() ([]byte, error) {
+	kid := uuid.NewV4().String()
+	return parser.GenerateJSONWebKeyWithRSAPublicKey(ck.RsaKey.PublicKey, kid)
+}
+
 func generateRsaKey(bits int) (entity.RsaKey, error) {
 	rsakey := entity.RsaKey{}
 	privateKey, publicKey, err := generator.GenerateEncryptedPEM(bits, "")
@@ -61,6 +91,26 @@ func generateRsaKey(bits int) (entity.RsaKey, error) {
 		return rsakey, err
 	}
 	if err := parser.ReadPublicKey(publicKey, &rsakey); err != nil {
+		return rsakey, err
+	}
+	return rsakey, nil
+}
+
+func generateRsaKeyWithPEMPublicKey(publickey []byte) (entity.RsaKey, error) {
+	rsakey := entity.RsaKey{}
+	if err := parser.ReadPublicKey(publickey, &rsakey); err != nil {
+		return rsakey, err
+	}
+	return rsakey, nil
+}
+
+func generateRsaKeyWithJWKMPublicKey(publickey []byte) (entity.RsaKey, error) {
+	rsakey := entity.RsaKey{}
+	jwk, err := parser.ConvertToJSONWebKey([]byte(publickey))
+	if err != nil {
+		return rsakey, err
+	}
+	if rsakey.PublicKey, err = parser.ConvertToRSAPublicFromJWK(&jwk); err != nil {
 		return rsakey, err
 	}
 	return rsakey, nil

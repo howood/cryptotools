@@ -10,7 +10,7 @@
 
 # cryptotools
 
-CryptoTools provides Encryption Tools with Common Key and PublicKey.
+CryptoTools provides Encryption Tools with Common Key and Public Key.
 
 # Install
 

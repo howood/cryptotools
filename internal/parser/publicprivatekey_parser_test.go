@@ -14,7 +14,7 @@ type keyTestData struct {
 }
 
 var privatekeyData = map[string]keyTestData{
-	"privatekey1": keyTestData{
+	"privatekey1": {
 		Data: `-----BEGIN RSA PRIVATE KEY-----
 MIIJKQIBAAKCAgEAopHmB0gquCxhX46Tn+O5EfiAVUmjrCqOJLeZ0wZEaZpNDOUp
 bKO6Vb/MEJUiXfzoRH6Q23H3inzl02XQE1HFwdV7EuT1ineHAL7h1MVwkFX2iBzP
@@ -69,7 +69,7 @@ WQ44XaHY6P62IhxyDR0nGBHLy1PwxWZKDsFK6BwpJ3VX6bb1ZkbhDMr26gCp
 `,
 		ResultHasErr: false,
 	},
-	"privatekey2": keyTestData{
+	"privatekey2": {
 		Data: `
 MIIJKQIBAAKCAgEAopHmB0gquCxhX46Tn+O5EfiAVUmjrCqOJLeZ0wZEaZpNDOUp
 bKO6Vb/MEJUiXfzoRH6Q23H3inzl02XQE1HFwdV7EuT1ineHAL7h1MVwkFX2iBzP
@@ -124,7 +124,7 @@ WQ44XaHY6P62IhxyDR0nGBHLy1PwxWZKDsFK6BwpJ3VX6bb1ZkbhDMr26gCp
 `,
 		ResultHasErr: true,
 	},
-	"privatekey3": keyTestData{
+	"privatekey3": {
 		Data: `-----BEGIN PRIVATE KEY-----
 MIIJKQIBAAKCAgEAopHmB0gquCxhX46Tn+O5EfiAVUmjrCqOJLeZ0wZEaZpNDOUp
 bKO6Vb/MEJUiXfzoRH6Q23H3inzl02XQE1HFwdV7EuT1ineHAL7h1MVwkFX2iBzP
@@ -179,7 +179,7 @@ WQ44XaHY6P62IhxyDR0nGBHLy1PwxWZKDsFK6BwpJ3VX6bb1ZkbhDMr26gCp
 `,
 		ResultHasErr: true,
 	},
-	"privatekey4": keyTestData{
+	"privatekey4": {
 		Data: `-----BEGIN RSA PRIVATE KEY-----
 MIIJKQIBAAKCAgEAopHmB0gquCxhX46Tn+O5EfiAVUmjrCqOJLeZ0wZEaZpNDOUp
 bKO6Vb/MEJUiXfzoRH6Q23H3inzl02XQE1HFwdV7EuT1ineHAL7h1MVwkFX2iBzP
@@ -192,7 +192,7 @@ WQ44XaHY6P62IhxyDR0nGBHLy1PwxWZKDsFK6BwpJ3VX6bb1ZkbhDMr26gCp
 `,
 		ResultHasErr: true,
 	},
-	"privatekey5": keyTestData{
+	"privatekey5": {
 		Data: `-----BEGIN DSA PRIVATE KEY-----
 Proc-Type: 4,ENCRYPTED
 DEK-Info: DES-EDE3-CBC,32242D3525AEDC64
@@ -210,7 +210,7 @@ Fa7VyFP4TyCjUM1w==
 `,
 		ResultHasErr: true,
 	},
-	"privatekey6": keyTestData{
+	"privatekey6": {
 		Data: `-----BEGIN RSA PRIVATE KEY-----
 Proc-Type: 4,ENCRYPTED
 DEK-Info: DES-EDE3-CBC,32242D3525AEDC64
@@ -231,7 +231,7 @@ Fa7VyFP4TyCjUM1w==
 }
 
 var publickeyData = map[string]keyTestData{
-	"publickey1": keyTestData{
+	"publickey1": {
 		Data: `-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAopHmB0gquCxhX46Tn+O5
 EfiAVUmjrCqOJLeZ0wZEaZpNDOUpbKO6Vb/MEJUiXfzoRH6Q23H3inzl02XQE1HF
@@ -249,7 +249,7 @@ Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 		ResultHasErr: false,
 	},
 
-	"publickey2": keyTestData{
+	"publickey2": {
 		Data: `
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAopHmB0gquCxhX46Tn+O5
 EfiAVUmjrCqOJLeZ0wZEaZpNDOUpbKO6Vb/MEJUiXfzoRH6Q23H3inzl02XQE1HF
@@ -266,7 +266,7 @@ Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 	`,
 		ResultHasErr: true,
 	},
-	"publickey3": keyTestData{
+	"publickey3": {
 		Data: `-----BEGIN PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAopHmB0gquCxhX46Tn+O5
 EfiAVUmjrCqOJLeZ0wZEaZpNDOUpbKO6Vb/MEJUiXfzoRH6Q23H3inzl02XQE1HF
@@ -282,7 +282,7 @@ Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 -----END PUBLIC KEY-----`,
 		ResultHasErr: true,
 	},
-	"publickey4": keyTestData{
+	"publickey4": {
 		Data: `-----BEGIN RSA PUBLIC KEY-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAopHmB0gquCxhX46Tn+O5
 EfiAVUmjrCqOJLeZ0wZEaZpNDOUpbKO6Vb/MEJUiXfzoRH6Q23H3inzl02XQE1HF
@@ -299,7 +299,7 @@ Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 -----END RSA PUBLIC KEY-----`,
 		ResultHasErr: true,
 	},
-	"publickey5": keyTestData{
+	"publickey5": {
 		Data: `-----BEGIN PUBLIC-----
 MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAopHmB0gquCxhX46Tn+O5
 EfiAVUmjrCqOJLeZ0wZEaZpNDOUpbKO6Vb/MEJUiXfzoRH6Q23H3inzl02XQE1HF
@@ -316,7 +316,7 @@ Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 -----END PUBLIC-----`,
 		ResultHasErr: true,
 	},
-	"publickey6": keyTestData{
+	"publickey6": {
 		Data: `-----BEGIN RSA PUBLIC KEY-----
 AAAAB3NzaC1kc3MAAACBAIHozHi6CHwvGDt7uEYkEmn4STOj2neOo5mPOZFpBjs
 KzzWBqBuAxoMwMgHy3zZAIgmzMwIVQum4/uIHlhOx0Q4QDLJbveFShuXxBjm5BOU1

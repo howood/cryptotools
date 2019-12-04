@@ -7,7 +7,7 @@ import (
 	"github.com/howood/cryptotools/internal/entity"
 )
 
-// CryptoRsa is Rsa encryption struct
+// CryptoRsa represents Rsa encryption struct
 type CryptoRsa struct {
 	rsakey *entity.RsaKey
 }

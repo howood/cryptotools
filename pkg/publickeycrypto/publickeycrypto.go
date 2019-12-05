@@ -9,50 +9,57 @@ import (
 	"github.com/howood/cryptotools/internal/parser"
 )
 
+const (
+	EncryptTypeRsa   entity.EncriptKeyType = entity.EncriptTypeRsa
+	EncryptTypeEcdsa entity.EncriptKeyType = entity.EncriptTypeECDSA
+)
+
 // PublicKeyCrypto represents PublicKeyCrypto struct
 type PublicKeyCrypto struct {
-	RsaKey    *entity.RsaKey
-	encrypter *encrypter.CryptoRsa
+	EncryptType  entity.EncriptKeyType
+	EncryptKey   *entity.EncryptKey
+	encrypterrsa *encrypter.CryptoRsa
+	//	encrypterrecdsa *encrypter.CryptoEcdsa
 }
 
 // NewPublicKeyCrypto create PublicKeyCrypto struct
-func NewPublicKeyCrypto(bits int) (*PublicKeyCrypto, error) {
-	rsakey, err := generateRsaKey(bits)
+func NewPublicKeyCrypto(bits int, encryptType entity.EncriptKeyType) (*PublicKeyCrypto, error) {
+	encryptkey, err := generateKey(bits, encryptType)
 	return &PublicKeyCrypto{
-		RsaKey:    &rsakey,
-		encrypter: encrypter.NewCryptoRsa(&rsakey),
+		EncryptKey:   &encryptkey,
+		encrypterrsa: encrypter.NewCryptoRsa(&encryptkey.RsaKey),
 	}, err
 }
 
 // NewPublicKeyCryptoWithPEMPublicKey create PublicKeyCrypto struct with PEM Public Key
 func NewPublicKeyCryptoWithPEMPublicKey(publickey []byte) (*PublicKeyCrypto, error) {
-	rsakey, err := generateRsaKeyWithPEMPublicKey(publickey)
+	encryptkey, err := generateKeyWithPEMPublicKey(publickey)
 	return &PublicKeyCrypto{
-		RsaKey:    &rsakey,
-		encrypter: encrypter.NewCryptoRsa(&rsakey),
+		EncryptKey:   &encryptkey,
+		encrypterrsa: encrypter.NewCryptoRsa(&encryptkey.RsaKey),
 	}, err
 }
 
 // NewPublicKeyCryptoWithJWKPublicKey create PublicKeyCrypto struct with JWK Public Key
 func NewPublicKeyCryptoWithJWKPublicKey(publickey []byte) (*PublicKeyCrypto, error) {
-	rsakey, err := generateRsaKeyWithJWKMPublicKey(publickey)
+	encryptkey, err := generateKeyWithJWKMPublicKey(publickey)
 	return &PublicKeyCrypto{
-		RsaKey:    &rsakey,
-		encrypter: encrypter.NewCryptoRsa(&rsakey),
+		EncryptKey:   &encryptkey,
+		encrypterrsa: encrypter.NewCryptoRsa(&encryptkey.RsaKey),
 	}, err
 }
 
 // Encrypt encrypts input data with publickey encryption
 func (ck *PublicKeyCrypto) Encrypt(input string) (string, error) {
-	return ck.encrypter.EncryptWithBase64([]byte(input))
+	return ck.encrypterrsa.EncryptWithBase64([]byte(input))
 }
 
 // Decrypt decrypts input data with publickey encryption
 func (ck *PublicKeyCrypto) Decrypt(input string) (string, error) {
-	if ck.RsaKey.PrivateKey == nil {
+	if ck.EncryptKey.RsaKey.PrivateKey == nil {
 		return "", errors.New("no private key available")
 	}
-	data, err := ck.encrypter.DecryptWithBase64(input)
+	data, err := ck.encrypterrsa.DecryptWithBase64(input)
 	if err != nil {
 		return "", err
 	}
@@ -60,57 +67,71 @@ func (ck *PublicKeyCrypto) Decrypt(input string) (string, error) {
 }
 
 // GetPrivateKey gets privatekey
-func (ck *PublicKeyCrypto) GetPrivateKey() []byte {
-	return parser.EncodeRsaPrivateKeyPKCS1(ck.RsaKey.PrivateKey)
+func (ck *PublicKeyCrypto) GetRsaPrivateKey() []byte {
+	return parser.EncodeRsaPrivateKeyPKCS1(ck.EncryptKey.RsaKey.PrivateKey)
 }
 
 // GetPrivateKeyPKCS8 gets pkcs8 privatekey
-func (ck *PublicKeyCrypto) GetPrivateKeyPKCS8() ([]byte, error) {
-	return parser.EncodeRsaPrivateKeyPKCS8(ck.RsaKey.PrivateKey)
+func (ck *PublicKeyCrypto) GetRsaPrivateKeyPKCS8() ([]byte, error) {
+	return parser.EncodeRsaPrivateKeyPKCS8(ck.EncryptKey.RsaKey.PrivateKey)
 }
 
 // GetPublicKey gets publickey
-func (ck *PublicKeyCrypto) GetPublicKey() ([]byte, error) {
-	return parser.EncodeRsaPublicKey(ck.RsaKey.PublicKey)
+func (ck *PublicKeyCrypto) GetRsaPublicKey() ([]byte, error) {
+	return parser.EncodeRsaPublicKey(ck.EncryptKey.RsaKey.PublicKey)
 }
 
 // GetPublicKeyWithJWK gets jwk publickey
-func (ck *PublicKeyCrypto) GetPublicKeyWithJWK() ([]byte, error) {
-	kid := parser.GenerateHashFromRsaKey(ck.RsaKey.PublicKey)
-	return parser.GenerateJSONWebKeyWithRSAPublicKey(ck.RsaKey.PublicKey, kid)
+func (ck *PublicKeyCrypto) GetRsaPublicKeyWithJWK() ([]byte, error) {
+	kid := parser.GenerateHashFromRsaKey(ck.EncryptKey.RsaKey.PublicKey)
+	return parser.GenerateJSONWebKeyWithRSAPublicKey(ck.EncryptKey.RsaKey.PublicKey, kid)
 }
 
-func generateRsaKey(bits int) (entity.RsaKey, error) {
-	rsakey := entity.RsaKey{}
-	privateKey, publicKey, err := generator.GenerateEncryptedPEM(bits, "")
-	if err != nil {
-		return rsakey, err
+func generateKey(bits int, encryptType entity.EncriptKeyType) (entity.EncryptKey, error) {
+	encryptKey := entity.EncryptKey{}
+	switch encryptType {
+	case EncryptTypeRsa:
+		privateKey, publicKey, err := generator.GenerateEncryptedRsaPEM(bits, "")
+		if err != nil {
+			return encryptKey, err
+		}
+		if err := parser.DecodePrivateKey(privateKey, &encryptKey); err != nil {
+			return encryptKey, err
+		}
+		if err := parser.DecodePublicKey(publicKey, &encryptKey); err != nil {
+			return encryptKey, err
+		}
+	case EncryptTypeEcdsa:
+		privateKey, publicKey, err := generator.GenerateEncryptedEcdsaPEM(bits, "")
+		if err != nil {
+			return encryptKey, err
+		}
+		if err := parser.DecodePrivateKey(privateKey, &encryptKey); err != nil {
+			return encryptKey, err
+		}
+		if err := parser.DecodePublicKey(publicKey, &encryptKey); err != nil {
+			return encryptKey, err
+		}
 	}
-	if err := parser.DecodeRsaPrivateKey(privateKey, &rsakey); err != nil {
-		return rsakey, err
-	}
-	if err := parser.DecodeRsaPublicKey(publicKey, &rsakey); err != nil {
-		return rsakey, err
-	}
-	return rsakey, nil
+	return encryptKey, nil
 }
 
-func generateRsaKeyWithPEMPublicKey(publickey []byte) (entity.RsaKey, error) {
-	rsakey := entity.RsaKey{}
-	if err := parser.DecodeRsaPublicKey(publickey, &rsakey); err != nil {
-		return rsakey, err
+func generateKeyWithPEMPublicKey(publickey []byte) (entity.EncryptKey, error) {
+	encryptkey := entity.EncryptKey{}
+	if err := parser.DecodePublicKey(publickey, &encryptkey); err != nil {
+		return encryptkey, err
 	}
-	return rsakey, nil
+	return encryptkey, nil
 }
 
-func generateRsaKeyWithJWKMPublicKey(publickey []byte) (entity.RsaKey, error) {
-	rsakey := entity.RsaKey{}
+func generateKeyWithJWKMPublicKey(publickey []byte) (entity.EncryptKey, error) {
+	encryptkey := entity.EncryptKey{}
 	jwk, err := parser.ConvertToJSONWebKey([]byte(publickey))
 	if err != nil {
-		return rsakey, err
+		return encryptkey, err
 	}
-	if rsakey.PublicKey, err = parser.ConvertToRSAPublicFromJWK(&jwk); err != nil {
-		return rsakey, err
+	if encryptkey.RsaKey.PublicKey, err = parser.ConvertToRSAPublicFromJWK(&jwk); err != nil {
+		return encryptkey, err
 	}
-	return rsakey, nil
+	return encryptkey, nil
 }

@@ -14,13 +14,13 @@ var testdata = `
 
 func Test_PublicKeyCrypto(t *testing.T) {
 
-	if _, err := NewPublicKeyCrypto(0); err == nil {
+	if _, err := NewPublicKeyCrypto(0, EncryptTypeRsa); err == nil {
 		t.Fatal("failed NewPublicKeyCrypto ")
 	} else {
 		t.Logf("failed test %#v", err)
 	}
 
-	pc, err := NewPublicKeyCrypto(2048)
+	pc, err := NewPublicKeyCrypto(2048, EncryptTypeRsa)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -40,14 +40,14 @@ func Test_PublicKeyCrypto(t *testing.T) {
 	} else {
 		t.Logf("failed test %#v", err)
 	}
-	privatekey := pc.GetPrivateKey()
+	privatekey := pc.GetRsaPrivateKey()
 	t.Log(string(privatekey))
-	privatekeypkcs8, err := pc.GetPrivateKeyPKCS8()
+	privatekeypkcs8, err := pc.GetRsaPrivateKeyPKCS8()
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
 	t.Log(string(privatekeypkcs8))
-	publickey, err := pc.GetPublicKey()
+	publickey, err := pc.GetRsaPublicKey()
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -56,11 +56,11 @@ func Test_PublicKeyCrypto(t *testing.T) {
 }
 
 func Test_PublicKeyCryptoWithPublicKey(t *testing.T) {
-	pc, err := NewPublicKeyCrypto(2048)
+	pc, err := NewPublicKeyCrypto(2048, EncryptTypeRsa)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	publickey, err := pc.GetPublicKey()
+	publickey, err := pc.GetRsaPublicKey()
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -93,11 +93,11 @@ func Test_PublicKeyCryptoWithPublicKey(t *testing.T) {
 }
 
 func Test_PublicKeyCryptoWithJWKPublicKey(t *testing.T) {
-	pc, err := NewPublicKeyCrypto(2048)
+	pc, err := NewPublicKeyCrypto(2048, EncryptTypeRsa)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	publickey, err := pc.GetPublicKeyWithJWK()
+	publickey, err := pc.GetRsaPublicKeyWithJWK()
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}

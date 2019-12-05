@@ -83,14 +83,14 @@ func Test_CryptoRsa(t *testing.T) {
     "message2": ["ng", "ng2"]
 }
 `
-	rsakey := entity.RsaKey{}
-	if err := parser.DecodeRsaPrivateKey([]byte(rsaprivatekey), &rsakey); err != nil {
+	encryptkey := entity.EncryptKey{}
+	if err := parser.DecodePrivateKey([]byte(rsaprivatekey), &encryptkey); err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	if err := parser.DecodeRsaPublicKey([]byte(rsapublickey), &rsakey); err != nil {
+	if err := parser.DecodePublicKey([]byte(rsapublickey), &encryptkey); err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	cryptorsa := NewCryptoRsa(&rsakey)
+	cryptorsa := NewCryptoRsa(&encryptkey.RsaKey)
 
 	encryptdata, err := cryptorsa.EncryptWithBase64([]byte(testdata))
 	if err != nil {
@@ -105,7 +105,7 @@ func Test_CryptoRsa(t *testing.T) {
 	}
 
 	var checkdata string
-	for i := 0; i < (rsakey.PrivateKey.N.BitLen()+7)/8+1; i++ {
+	for i := 0; i < (encryptkey.RsaKey.PrivateKey.N.BitLen()+7)/8+1; i++ {
 		checkdata += "a"
 	}
 	if _, err := cryptorsa.EncryptWithBase64([]byte(checkdata)); err == nil {

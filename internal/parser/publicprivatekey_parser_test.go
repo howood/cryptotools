@@ -366,13 +366,13 @@ func Test_ConvertPublicKey(t *testing.T) {
 		t.Logf("failed test %#v", err)
 	}
 	//t.Log(fmt.Sprintf("%v", string(pempublickey)))
-	rsakey := &entity.RsaKey{}
-	err = DecodeRsaPublicKey(pempublickey, rsakey)
+	encryptkey := &entity.EncryptKey{}
+	err = DecodePublicKey(pempublickey, encryptkey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
 	//t.Log(rsakey.PublicKey)
-	if reflect.DeepEqual(rsakey.PublicKey, publickey) == false {
+	if reflect.DeepEqual(encryptkey.RsaKey.PublicKey, publickey) == false {
 		t.Fatalf("failed compare publickey ")
 	}
 	t.Log("success PublicKeyConvertTest")
@@ -380,8 +380,8 @@ func Test_ConvertPublicKey(t *testing.T) {
 
 func Test_ReadPrivatePublicKey(t *testing.T) {
 	for k, v := range privatekeyData {
-		rsakey := &entity.RsaKey{}
-		err := DecodeRsaPrivateKey([]byte(v.Data), rsakey)
+		encryptkey := &entity.EncryptKey{}
+		err := DecodePrivateKey([]byte(v.Data), encryptkey)
 		if (err != nil) != v.ResultHasErr {
 			t.Fatalf("failed test :%s %#v", k, err)
 		} else {
@@ -391,8 +391,8 @@ func Test_ReadPrivatePublicKey(t *testing.T) {
 
 	}
 	for k, v := range publickeyData {
-		rsakey := &entity.RsaKey{}
-		err := DecodeRsaPublicKey([]byte(v.Data), rsakey)
+		encryptkey := &entity.EncryptKey{}
+		err := DecodePublicKey([]byte(v.Data), encryptkey)
 		if (err != nil) != v.ResultHasErr {
 			t.Fatalf("failed test :%s %#v", k, err)
 		} else {
@@ -434,12 +434,12 @@ func Test_ConvertPrivatecKey(t *testing.T) {
 
 	pemprikey1 := EncodeRsaPrivateKeyPKCS1(privatekey)
 	//t.Log(fmt.Sprintf("%v", string(pemprikey1)))
-	rsakey := &entity.RsaKey{}
-	err = DecodeRsaPrivateKey(pemprikey1, rsakey)
+	encryptkey := &entity.EncryptKey{}
+	err = DecodePrivateKey(pemprikey1, encryptkey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	pemprikeyagain1 := EncodeRsaPrivateKeyPKCS1(rsakey.PrivateKey)
+	pemprikeyagain1 := EncodeRsaPrivateKeyPKCS1(encryptkey.RsaKey.PrivateKey)
 	if reflect.DeepEqual(pemprikeyagain1, pemprikey1) == false {
 		t.Fatalf("failed compare privatekey PKCS#1")
 	}
@@ -449,12 +449,12 @@ func Test_ConvertPrivatecKey(t *testing.T) {
 		t.Fatalf("failed test %#v", err)
 	}
 	//t.Log(fmt.Sprintf("%v", string(pemprikey2)))
-	rsakey = &entity.RsaKey{}
-	err = DecodeRsaPrivateKey(pemprikey2, rsakey)
+	encryptkey = &entity.EncryptKey{}
+	err = DecodePrivateKey(pemprikey2, encryptkey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	pemprikeyagain2, err := EncodeRsaPrivateKeyPKCS8(rsakey.PrivateKey)
+	pemprikeyagain2, err := EncodeRsaPrivateKeyPKCS8(encryptkey.RsaKey.PrivateKey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -520,12 +520,12 @@ WQ44XaHY6P62IhxyDR0nGBHLy1PwxWZKDsFK6BwpJ3VX6bb1ZkbhDMr26gCp
 
 	checkdata := `{"kty":"RSA","kid":"aaaa","n":"opHmB0gquCxhX46Tn-O5EfiAVUmjrCqOJLeZ0wZEaZpNDOUpbKO6Vb_MEJUiXfzoRH6Q23H3inzl02XQE1HFwdV7EuT1ineHAL7h1MVwkFX2iBzPxuyg0pGl_yDg8aSWIWT0E-dlbAGXqzz6uISsqURRUQYrVlirDV8JnQd3QHE87u4g5E00fKmwuH6viFlVr_zwvAU0airh0Fk4AgikQdJxiGIzfOCapmy-LlnDb7Hu0bH9fUK04rr57F3LU_-9QPG7FoLYVFjg08dwlo8O_sGMad8K7UGHuZBIyRz5SA9nmaCTj5xGjmpsJ1ZL8W5puUs_OWSFkIuDhPix-5vok_4Iw4O5jDiFGadJqHpfEGhZWL0037gg7X0YaFudvsdZdHrr9oFI3NUeAJGq82quns_9c1ARiYssmt3YP5dkVilSfX0U7vM1QYcwffmH48-V7t-GN09PdFdN-iXJQlg9nwzE573YHTXWdzgrN3KqGoRcaBCRcaq-nRW8RcHReIkxgAdXzQl2sSJLphZNH4pfnSrR7ChAEk1ZR567L-malLKARkI3lNGlMFGvhjxpH1cHJeYGo2bHzYtbVhoNujF6btwv7AzaptOn66KJ7tEo92yJbMdZvOxQfCLnjk9FqoLqFAPtiRXoqlNUfK7nAj9zSflwh6m3w5TyQziTOp9O468","e":"AQAB","d":"L7gNwlNvnrIAPxFVydgJSfociWxdK7suEB8IewXa7PiK518Y4rfIiUUMPE3aUaZb80cHdDKmy7LPr1ayVglpt_TW9HvaizN8oD5ngZIW8XcaL2ftoWFx730rMZFQFf4Ox2yfrHv-rE5nW69BlQn0uJbCG7to2yaZxwn_g2Venr7eeO_THdB_uJwCsJUXJzm5yje_3iDU-tjtgb--jfJFbMC97J-Op3gyTOmchXR5xn5_MHRDiRIckHT7yWLavSRTRA3wsbHkmBWioOdo5_jEGQltEuKSjYPvuAtfIhFsJrfG3DRjPANOPp2Ec6OEFTEovWgV_d3AyuX4y_5IGCfyg45gg_E5nQvViE9SgxPbJTJ40v2r6oF_DmqxRpUwdFQTwsVNpslY-zBxRtqCzlcOQWAk9p8EJwFy-zvW4dJURmd3OKO51t_1O7e7Ei3yD0FDd6oKV3TaQx0xbwb7kiGr63iiHSW7tCY41AWZR3Z_8LgaVy0Sn_f_1RJ6ya9a7WV3IDF_XXcgJ7inFwkK7fV4t9YDzK2hPBaZne2qcpi0MjAKZ9M_nu5AoSXOfq6EF2nfb-M46_hjFePUAoXrYzd2ky6Dh7TNzBdml0lRBgCwz7mesS0H2dv62lpdZ6NBrhPZ2_7ZTp6XWlSFlUXJ5fTMsjSJQMEUUfih4MedAZ2PafE","p":"1sTwE6s_D59PP5xFaVGDRYfBhc3jQsaME3iTtJRpCae0v999EvsBj3QKSKTvqRnghjfnFDLQQAOV_3rWdkzXihSw5oAYK-VUKHT-5MKSECapbxD4g9WC2yeQrUMEzHLrPaM6qJ0sebyjOTeov4iExhreUsqZL4ghg26Zmgmhrg7Qyn7tBDIek39V7D1w1wOTiJU5WH5zfsjIxDsSxPxdaSenlzJypMrg4hlgfvGnC-yqPd4eQRV5d6zVurqaYEW150ImO_SFnlkIfdmOI6fwUCCqBN3q2Xl1KkehQGLC7AJN1t8vOM2ivT3BFGcbYaU6KZluMMce1DwflwZ7AJ1MSQ","q":"wceRWu3d8QLMq1KYu0uT5sLF6BAmsQfSHmZq6q3PoeFMobEkeX-9atbihrIjZ1jTjGzlJI7WY7aM7cYNs9_RnLsyNNfm1_jVLVmzDCTrSaAZHjCVlcHHVV05MsHsgyeI8AwHBLDVsc0Q7RamIzQDXxC4w-M6-fwIzUWKDyc7ar6_kjw0Q9h9TtgHLuR1gxwyUaMlKKcg5ElYeGrzfOrUa6inbdobe64YyekZ3pewUbgn3OYxKIfHsfpZwR_Eoonle6xIXCg-Y60mWS8Fzahpun--8a-JJlOEJ1nqCrQY2PPHmpMFv0UmRoX2EpKW1oe-bqlRM1pmKtehEBKv9meANw","dp":"o_mG5y2HHzFd-04f_NI8bLjCu5s_mXsn9bHI7EWnkLSXnytOPlCgl1tcgqxTQwO71h4Wcuh88XMLchziYz42DnnPup0wV0tnnt_8wMIBbQ1nraICa_13REYIAxE5N7PCAbR_k7809tlcsdHaKCpeXTakage_P3grRkMKSX5zEAbFyOVxpxNxHuJIwu8CGVfkq5JrTzJ0kedQyenkYbvgwemB3kGpIEK5wkbn0uRDyyntrQDKjpyLuiCeqkvQlBKFWMS7lmkSH50Qi62wBW8yXqshxEd_CH3gQ-CesB73feQgdB7A2hi-2MeuhBpY4IubRamcZOeSlS42XEOZZBW06Q","dq":"tATFCTcfTu3t217RGnY8wUzCdDLE7wM39RvqSXgNAvL9sNyS6Ph9rIpSSRWmhDTl2nezbAHyMxH83Et4oVjVLwhMvQCxqIO27vl8t1R47J35l61E2an6l1gScg_ru2_37CEQSBBLhXDfP5Ih52RDmYY8T2aCfIfiWWg3uJoWvbTU3XJmj3zH9H4GNk7wyEtih6rLM3gHu2xT7xJUfwDdM-KrIAdWLtDuoGyXps0-dLxi8_k5Q9DX-IR960aq8uCuOvUzB8IvK4RIsuNXPdYt2p8gcQBEpkFB7Ri_rw_eYXYfQX9CAI2p4CxFDL33uPbEN6O-FrntXfGR5A-oPn2qgw","qi":"Vlxx7K5yfqtBnWzYzkfajKYLA7bKxC9rNetvL5ezPZwbfVDPSdL0OyLjL8Mpq200dBPs-rce2evyfhlYYVsArymgqZ_YbObbPnKe38NVQsJnbsUKEAqPuEchXZghrXMGYDOhdCqxGp6dvNdv2cpVkTkopJ8tk7Wi1O5uQylLig5YgLx7OUuLoPxHAPmNzZwUu5V5nqASVLWmrk7XTip676oRr2eRytDM9gex1Fh2qrZVAhKYqlJYe2hsm7j_lsoZeSnj7mNq6ZMn78-F_52COw06N1kOOF2h2Oj-tiIccg0dJxgRy8tT8MVmSg7BSugcKSd1V-m29WZG4QzK9uoAqQ"}`
 
-	rsakey := &entity.RsaKey{}
-	err := DecodeRsaPrivateKey([]byte(privatekey), rsakey)
+	encryptkey := &entity.EncryptKey{}
+	err := DecodePrivateKey([]byte(privatekey), encryptkey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	jwk, err := GenerateJSONWebKeyWithRSAPrivateKey(rsakey.PrivateKey, "aaaa")
+	jwk, err := GenerateJSONWebKeyWithRSAPrivateKey(encryptkey.RsaKey.PrivateKey, "aaaa")
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -533,7 +533,7 @@ WQ44XaHY6P62IhxyDR0nGBHLy1PwxWZKDsFK6BwpJ3VX6bb1ZkbhDMr26gCp
 	if reflect.DeepEqual(jwk, []byte(checkdata)) == false {
 		t.Fatalf("failed compare ConvertPublicKeyJWKPrivateKey")
 	}
-	kid := GenerateHashFromRsaKey(rsakey.PrivateKey)
+	kid := GenerateHashFromRsaKey(encryptkey.RsaKey.PrivateKey)
 	t.Log(kid)
 
 	t.Log("success ConvertPublicKeyJWKPrivateKey")
@@ -560,12 +560,12 @@ Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 
 	checkdata := `{"kty":"RSA","kid":"aaaa","alg":"RS256","n":"opHmB0gquCxhX46Tn-O5EfiAVUmjrCqOJLeZ0wZEaZpNDOUpbKO6Vb_MEJUiXfzoRH6Q23H3inzl02XQE1HFwdV7EuT1ineHAL7h1MVwkFX2iBzPxuyg0pGl_yDg8aSWIWT0E-dlbAGXqzz6uISsqURRUQYrVlirDV8JnQd3QHE87u4g5E00fKmwuH6viFlVr_zwvAU0airh0Fk4AgikQdJxiGIzfOCapmy-LlnDb7Hu0bH9fUK04rr57F3LU_-9QPG7FoLYVFjg08dwlo8O_sGMad8K7UGHuZBIyRz5SA9nmaCTj5xGjmpsJ1ZL8W5puUs_OWSFkIuDhPix-5vok_4Iw4O5jDiFGadJqHpfEGhZWL0037gg7X0YaFudvsdZdHrr9oFI3NUeAJGq82quns_9c1ARiYssmt3YP5dkVilSfX0U7vM1QYcwffmH48-V7t-GN09PdFdN-iXJQlg9nwzE573YHTXWdzgrN3KqGoRcaBCRcaq-nRW8RcHReIkxgAdXzQl2sSJLphZNH4pfnSrR7ChAEk1ZR567L-malLKARkI3lNGlMFGvhjxpH1cHJeYGo2bHzYtbVhoNujF6btwv7AzaptOn66KJ7tEo92yJbMdZvOxQfCLnjk9FqoLqFAPtiRXoqlNUfK7nAj9zSflwh6m3w5TyQziTOp9O468","e":"AQAB"}`
 
-	rsakey := &entity.RsaKey{}
-	err := DecodeRsaPublicKey([]byte(publickey), rsakey)
+	encryptkey := &entity.EncryptKey{}
+	err := DecodePublicKey([]byte(publickey), encryptkey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	jwk, err := GenerateJSONWebKeyWithRSAPublicKey(rsakey.PublicKey, "aaaa")
+	jwk, err := GenerateJSONWebKeyWithRSAPublicKey(encryptkey.RsaKey.PublicKey, "aaaa")
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -573,7 +573,7 @@ Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 	if reflect.DeepEqual(jwk, []byte(checkdata)) == false {
 		t.Fatalf("failed compare ConvertPublicKeyJWKPublicKey")
 	}
-	kid := GenerateHashFromRsaKey(rsakey.PublicKey)
+	kid := GenerateHashFromRsaKey(encryptkey.RsaKey.PublicKey)
 	t.Log(kid)
 	t.Log("success ConvertPublicKeyJWKPublicKey")
 

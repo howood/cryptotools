@@ -61,17 +61,17 @@ func (ck *PublicKeyCrypto) Decrypt(input string) (string, error) {
 
 // GetPrivateKey gets privatekey
 func (ck *PublicKeyCrypto) GetPrivateKey() []byte {
-	return parser.DecodeRsaPrivateKeyPKCS1(ck.RsaKey.PrivateKey)
+	return parser.EncodeRsaPrivateKeyPKCS1(ck.RsaKey.PrivateKey)
 }
 
 // GetPrivateKeyPKCS8 gets pkcs8 privatekey
 func (ck *PublicKeyCrypto) GetPrivateKeyPKCS8() ([]byte, error) {
-	return parser.DecodeRsaPrivateKeyPKCS8(ck.RsaKey.PrivateKey)
+	return parser.EncodeRsaPrivateKeyPKCS8(ck.RsaKey.PrivateKey)
 }
 
 // GetPublicKey gets publickey
 func (ck *PublicKeyCrypto) GetPublicKey() ([]byte, error) {
-	return parser.DecodeRsaPublicKey(ck.RsaKey.PublicKey)
+	return parser.EncodeRsaPublicKey(ck.RsaKey.PublicKey)
 }
 
 // GetPublicKeyWithJWK gets jwk publickey
@@ -86,10 +86,10 @@ func generateRsaKey(bits int) (entity.RsaKey, error) {
 	if err != nil {
 		return rsakey, err
 	}
-	if err := parser.ReadRsaPrivateKey(privateKey, &rsakey); err != nil {
+	if err := parser.DecodeRsaPrivateKey(privateKey, &rsakey); err != nil {
 		return rsakey, err
 	}
-	if err := parser.ReadRsaPublicKey(publicKey, &rsakey); err != nil {
+	if err := parser.DecodeRsaPublicKey(publicKey, &rsakey); err != nil {
 		return rsakey, err
 	}
 	return rsakey, nil
@@ -97,7 +97,7 @@ func generateRsaKey(bits int) (entity.RsaKey, error) {
 
 func generateRsaKeyWithPEMPublicKey(publickey []byte) (entity.RsaKey, error) {
 	rsakey := entity.RsaKey{}
-	if err := parser.ReadRsaPublicKey(publickey, &rsakey); err != nil {
+	if err := parser.DecodeRsaPublicKey(publickey, &rsakey); err != nil {
 		return rsakey, err
 	}
 	return rsakey, nil

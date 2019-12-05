@@ -17,8 +17,8 @@ const (
 	blockTypePublicKey     = "PUBLIC KEY"
 )
 
-// ReadRsaPrivateKey reads private to entity struct
-func ReadRsaPrivateKey(bytedata []byte, rsakey *entity.RsaKey) error {
+// DecodeRsaPrivateKey reads private to entity struct
+func DecodeRsaPrivateKey(bytedata []byte, rsakey *entity.RsaKey) error {
 	block, _ := pem.Decode(bytedata)
 	if block == nil {
 		return errors.New("failed to decode private key data")
@@ -47,8 +47,8 @@ func ReadRsaPrivateKey(bytedata []byte, rsakey *entity.RsaKey) error {
 	return nil
 }
 
-// ReadRsaPublicKey reads publickey to entity struct
-func ReadRsaPublicKey(bytedata []byte, rsakey *entity.RsaKey) error {
+// DecodeRsaPublicKey reads publickey to entity struct
+func DecodeRsaPublicKey(bytedata []byte, rsakey *entity.RsaKey) error {
 	block, _ := pem.Decode(bytedata)
 	if block == nil {
 		return errors.New("failed to decode PEM block containing public key")
@@ -76,9 +76,9 @@ func ReadRsaPublicKey(bytedata []byte, rsakey *entity.RsaKey) error {
 	return nil
 }
 
-// DecodeRsaPrivateKeyPKCS1 decodes PKCS1 private key to bytes
-func DecodeRsaPrivateKeyPKCS1(pubkey *rsa.PrivateKey) []byte {
-	prikeybytes := x509.MarshalPKCS1PrivateKey(pubkey)
+// EncodeRsaPrivateKeyPKCS1 decodes PKCS1 private key to bytes
+func EncodeRsaPrivateKeyPKCS1(prikey *rsa.PrivateKey) []byte {
+	prikeybytes := x509.MarshalPKCS1PrivateKey(prikey)
 	pemdata := pem.EncodeToMemory(
 		&pem.Block{
 			Type:  blockTypeRsaPrivateKey,
@@ -88,9 +88,9 @@ func DecodeRsaPrivateKeyPKCS1(pubkey *rsa.PrivateKey) []byte {
 	return pemdata
 }
 
-// DecodeRsaPrivateKeyPKCS8 decodes PKCS8 private key to bytes
-func DecodeRsaPrivateKeyPKCS8(pubkey *rsa.PrivateKey) ([]byte, error) {
-	prikeybytes, err := x509.MarshalPKCS8PrivateKey(pubkey)
+// EncodeRsaPrivateKeyPKCS8 decodes PKCS8 private key to bytes
+func EncodeRsaPrivateKeyPKCS8(prikey *rsa.PrivateKey) ([]byte, error) {
+	prikeybytes, err := x509.MarshalPKCS8PrivateKey(prikey)
 	if err != nil {
 		return nil, err
 	}
@@ -103,8 +103,8 @@ func DecodeRsaPrivateKeyPKCS8(pubkey *rsa.PrivateKey) ([]byte, error) {
 	return pemdata, nil
 }
 
-// DecodeRsaPublicKey decodes public key to bytes
-func DecodeRsaPublicKey(pubkey *rsa.PublicKey) ([]byte, error) {
+// EncodeRsaPublicKey decodes public key to bytes
+func EncodeRsaPublicKey(pubkey *rsa.PublicKey) ([]byte, error) {
 	prikeybytes, err := x509.MarshalPKIXPublicKey(pubkey)
 	if err != nil {
 		return nil, err

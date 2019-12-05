@@ -1,8 +1,11 @@
 package parser
 
 import (
+	"crypto/md5"
 	"crypto/rsa"
+	"encoding/hex"
 	"errors"
+	"fmt"
 
 	jose "gopkg.in/square/go-jose.v2"
 )
@@ -48,4 +51,11 @@ func ConvertToRSAPrivateFromJWK(key *jose.JSONWebKey) (*rsa.PrivateKey, error) {
 		return res, errors.New("Could not convert key to RSA Private Key")
 	}
 	return res, nil
+}
+
+// GenerateHashFromRsaKey generates Hash from RSA provate / public key
+func GenerateHashFromRsaKey(key interface{}) string {
+	hasher := md5.New()
+	hasher.Write([]byte(fmt.Sprintf("%v", key)))
+	return hex.EncodeToString(hasher.Sum(nil))
 }

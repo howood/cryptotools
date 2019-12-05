@@ -7,7 +7,6 @@ import (
 	"github.com/howood/cryptotools/internal/entity"
 	"github.com/howood/cryptotools/internal/generator"
 	"github.com/howood/cryptotools/internal/parser"
-	uuid "github.com/satori/go.uuid"
 )
 
 // PublicKeyCrypto represents PublicKeyCrypto struct
@@ -77,7 +76,7 @@ func (ck *PublicKeyCrypto) GetPublicKey() ([]byte, error) {
 
 // GetPublicKeyWithJWK gets jwk publickey
 func (ck *PublicKeyCrypto) GetPublicKeyWithJWK() ([]byte, error) {
-	kid := uuid.NewV4().String()
+	kid := parser.GenerateHashFromRsaKey(ck.RsaKey.PublicKey)
 	return parser.GenerateJSONWebKeyWithRSAPublicKey(ck.RsaKey.PublicKey, kid)
 }
 

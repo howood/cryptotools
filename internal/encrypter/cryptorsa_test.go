@@ -84,10 +84,10 @@ func Test_CryptoRsa(t *testing.T) {
 }
 `
 	rsakey := entity.RsaKey{}
-	if err := parser.ReadPrivateKey([]byte(rsaprivatekey), &rsakey); err != nil {
+	if err := parser.ReadRsaPrivateKey([]byte(rsaprivatekey), &rsakey); err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	if err := parser.ReadPublicKey([]byte(rsapublickey), &rsakey); err != nil {
+	if err := parser.ReadRsaPublicKey([]byte(rsapublickey), &rsakey); err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
 	cryptorsa := NewCryptoRsa(&rsakey)

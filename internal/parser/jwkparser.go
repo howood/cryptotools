@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"crypto"
+	"crypto/ecdsa"
 	"crypto/md5"
 	"crypto/rsa"
 	"encoding/hex"
@@ -29,8 +31,9 @@ func GenerateJSONWebKeyWithRSAPrivateKey(privatekey *rsa.PrivateKey, kid string)
 // GenerateJSONWebKeyWithRSAPublicKey convert rsa publickey to JWK
 func GenerateJSONWebKeyWithRSAPublicKey(publickey *rsa.PublicKey, kid string) ([]byte, error) {
 	jwk := jose.JSONWebKey{
-		KeyID: kid,
-		Key:   publickey,
+		KeyID:     kid,
+		Key:       publickey,
+		Algorithm: getPublickeyAlgorithm(publickey),
 	}
 	return jwk.MarshalJSON()
 }
@@ -58,4 +61,21 @@ func GenerateHashFromRsaKey(key interface{}) string {
 	hasher := md5.New()
 	hasher.Write([]byte(fmt.Sprintf("%v", key)))
 	return hex.EncodeToString(hasher.Sum(nil))
+}
+
+func getPublickeyAlgorithm(pub crypto.PublicKey) string {
+	switch pub := pub.(type) {
+	case *rsa.PublicKey:
+		return "RS256"
+	case *ecdsa.PublicKey:
+		switch pub.Params().Name {
+		case "P-256":
+			return "ES256"
+		case "P-384":
+			return "ES384"
+		case "P-521":
+			return "ES512"
+		}
+	}
+	return ""
 }

@@ -17,7 +17,7 @@ func NewPublicKeyCrypto(bits int) (*publickeycrypto.PublicKeyCrypto, error) {
 	if bits == 0 {
 		bits = defaultBits
 	}
-	return publickeycrypto.NewPublicKeyCrypto(bits)
+	return publickeycrypto.NewPublicKeyCrypto(bits, publickeycrypto.EncryptTypeRsa)
 }
 
 // NewPublicKeyCryptoWithPEMPublicKey create PublicKeyCrypto with PEM PublicKey

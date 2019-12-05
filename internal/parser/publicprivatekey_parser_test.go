@@ -533,6 +533,8 @@ WQ44XaHY6P62IhxyDR0nGBHLy1PwxWZKDsFK6BwpJ3VX6bb1ZkbhDMr26gCp
 	if reflect.DeepEqual(jwk, []byte(checkdata)) == false {
 		t.Fatalf("failed compare ConvertPublicKeyJWKPrivateKey")
 	}
+	kid := GenerateHashFromRsaKey(rsakey.PrivateKey)
+	t.Log(kid)
 
 	t.Log("success ConvertPublicKeyJWKPrivateKey")
 
@@ -569,7 +571,8 @@ Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 	if reflect.DeepEqual(jwk, []byte(checkdata)) == false {
 		t.Fatalf("failed compare ConvertPublicKeyJWKPublicKey")
 	}
-
+	kid := GenerateHashFromRsaKey(rsakey.PublicKey)
+	t.Log(kid)
 	t.Log("success ConvertPublicKeyJWKPublicKey")
 
 }

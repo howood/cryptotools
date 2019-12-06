@@ -19,6 +19,15 @@ func ConvertToJSONWebKey(input []byte) (jose.JSONWebKey, error) {
 	return jwk, err
 }
 
+// GenerateJSONWebKeyWithEcdsaPrivateKey convert ecdsa privatekey to JWK
+func GenerateJSONWebKeyWithEcdsaPrivateKey(privatekey *ecdsa.PrivateKey, kid string) ([]byte, error) {
+	jwk := jose.JSONWebKey{
+		KeyID: kid,
+		Key:   privatekey,
+	}
+	return jwk.MarshalJSON()
+}
+
 // GenerateJSONWebKeyWithRSAPrivateKey convert rsa privatekey to JWK
 func GenerateJSONWebKeyWithRSAPrivateKey(privatekey *rsa.PrivateKey, kid string) ([]byte, error) {
 	jwk := jose.JSONWebKey{

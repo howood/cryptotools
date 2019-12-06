@@ -8,15 +8,19 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/ScaleFT/sshkeys"
+
 	"github.com/howood/cryptotools/internal/entity"
 )
 
 const (
 	blockTypeRsaPrivateKey   = "RSA PRIVATE KEY"
 	blockTypeEcdsaPrivateKey = "EC PRIVATE KEY"
+	blockTypeOpenPrivateKey  = "OPEN PRIVATE KEY"
 	blockTypePrivateKey      = "PRIVATE KEY"
 	blockTypeRsaPublicKey    = "RSA PUBLIC KEY"
 	blockTypeEcdsaPublicKey  = "EC PUBLIC KEY"
+	blockTypeOpenPublicKey   = "OPEN PUBLIC KEY"
 	blockTypePublicKey       = "PUBLIC KEY"
 )
 
@@ -42,22 +46,21 @@ func DecodePrivateKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 			return err
 		}
 		encryptkey.Keytype = entity.EncryptTypeECDSA
+	case blockTypeOpenPrivateKey:
+		keyInterface, err := sshkeys.ParseEncryptedRawPrivateKey(block.Bytes, nil)
+		if err != nil {
+			return err
+		}
+		if err := castPrivateKeyToEncryptKey(keyInterface, encryptkey); err != nil {
+			return err
+		}
 	case blockTypePrivateKey:
 		keyInterface, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 		if err != nil {
 			return err
 		}
-		switch priv := keyInterface.(type) {
-		case *ecdsa.PrivateKey:
-			encryptkey.EcdsaKey.PrivateKey = priv
-			encryptkey.Keytype = entity.EncryptTypeECDSA
-
-		case *rsa.PrivateKey:
-			priv.Precompute()
-			encryptkey.RsaKey.PrivateKey = priv
-			encryptkey.Keytype = entity.EncryptTypeRsa
-		default:
-			return errors.New("not RSA / ECDSA private key")
+		if err := castPrivateKeyToEncryptKey(keyInterface, encryptkey); err != nil {
+			return err
 		}
 	default:
 		return fmt.Errorf("invalid private key type : %s", block.Type)
@@ -83,25 +86,26 @@ func DecodePublicKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 		if err != nil {
 			return err
 		}
-		var ok bool
-		if encryptkey.EcdsaKey.PublicKey, ok = keyInterface.(*ecdsa.PublicKey); !ok {
-			return errors.New("not ECDSA public key")
+		if err := castPublicKeyToEncryptKey(keyInterface, encryptkey); err != nil {
+			return err
 		}
-		encryptkey.Keytype = entity.EncryptTypeECDSA
+	/*
+		case blockTypeOpenPublicKey:
+			keyInterface, err := sshkeys.ParseEncryptedRawPrivateKey(block.Bytes, nil)
+			if err != nil {
+				return err
+			}
+			if err := castPublicKeyToEncryptKey(keyInterface, encryptkey); err != nil {
+				return err
+			}
+	*/
 	case blockTypePublicKey:
 		keyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 		if err != nil {
 			return err
 		}
-		switch priv := keyInterface.(type) {
-		case *ecdsa.PublicKey:
-			encryptkey.EcdsaKey.PublicKey = priv
-			encryptkey.Keytype = entity.EncryptTypeECDSA
-		case *rsa.PublicKey:
-			encryptkey.RsaKey.PublicKey = priv
-			encryptkey.Keytype = entity.EncryptTypeRsa
-		default:
-			return errors.New("not RSA / ECDSA private key")
+		if err := castPublicKeyToEncryptKey(keyInterface, encryptkey); err != nil {
+			return err
 		}
 	default:
 		return fmt.Errorf("invalid public key type : %s", block.Type)
@@ -179,4 +183,35 @@ func EncodeEcdsaPublicKey(pubkey *ecdsa.PublicKey) ([]byte, error) {
 		},
 	)
 	return pemdata, nil
+}
+
+func castPrivateKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.EncryptKey) error {
+	switch priv := keyInterface.(type) {
+	case *ecdsa.PrivateKey:
+		encryptkey.EcdsaKey.PrivateKey = priv
+		encryptkey.Keytype = entity.EncryptTypeECDSA
+		return nil
+	case *rsa.PrivateKey:
+		priv.Precompute()
+		encryptkey.RsaKey.PrivateKey = priv
+		encryptkey.Keytype = entity.EncryptTypeRsa
+		return nil
+	default:
+		return errors.New("not RSA / ECDSA private key")
+	}
+}
+
+func castPublicKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.EncryptKey) error {
+	switch priv := keyInterface.(type) {
+	case *ecdsa.PublicKey:
+		encryptkey.EcdsaKey.PublicKey = priv
+		encryptkey.Keytype = entity.EncryptTypeECDSA
+		return nil
+	case *rsa.PublicKey:
+		encryptkey.RsaKey.PublicKey = priv
+		encryptkey.Keytype = entity.EncryptTypeRsa
+		return nil
+	default:
+		return errors.New("not RSA / ECDSA private key")
+	}
 }

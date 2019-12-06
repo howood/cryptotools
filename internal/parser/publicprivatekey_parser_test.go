@@ -577,30 +577,117 @@ Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 
 }
 
-func Test_ConvertPublicKeyJWKEcdsaPublicKey(t *testing.T) {
+func Test_ConvertPublicKeyJWKEcdsaPrivateKey(t *testing.T) {
 
-	publickeystr := `{"kty":"EC","kid":"aaaa","crv":"P-256","alg":"ES256","x":"tey_ODRaouIU-Eu3hu_1q5O6yzGPzHjsJKTmI3XWmRs","y":"nLZnkOgPvbdIgds50-H-FSjuOkab2Y5cmSmvd-N8kl4"}`
+	privatekey := `-----BEGIN EC PRIVATE KEY-----
+MHcCAQEEIHlfWPDMDdtscbbVwF6lMo/rcjrNeBBe1fXtkgP0Neg4oAoGCCqGSM49
+AwEHoUQDQgAEZ1y5/pKS9hBBfPxzBdIGYceWf5htPgYfnSPOLUerb63NsPCLGIOD
+X8nPWQLBmBYWmcljPjFO3AvHEe7etnb3EA==
+-----END EC PRIVATE KEY-----
+`
 
-	jwk, err := ConvertToJSONWebKey([]byte(publickeystr))
+	checkdata := `{"kty":"EC","kid":"aaaa","crv":"P-256","x":"Z1y5_pKS9hBBfPxzBdIGYceWf5htPgYfnSPOLUerb60","y":"zbDwixiDg1_Jz1kCwZgWFpnJYz4xTtwLxxHu3rZ29xA","d":"eV9Y8MwN22xxttXAXqUyj-tyOs14EF7V9e2SA_Q16Dg"}`
+
+	encryptkey := &entity.EncryptKey{}
+	err := DecodePrivateKey([]byte(privatekey), encryptkey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	publickey, err := ConvertToEcdsaPublicFromJWK(&jwk)
-	if err != nil {
-		t.Fatalf("failed test %#v", err)
-	}
-
-	jwkbyte, err := GenerateJSONWebKeyWithEcdsaPublicKey(publickey, "aaaa")
+	jwkbyte, err := GenerateJSONWebKeyWithEcdsaPrivateKey(encryptkey.EcdsaKey.PrivateKey, "aaaa")
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
 	t.Log(string(jwkbyte))
-	t.Log(publickeystr)
-	if reflect.DeepEqual(jwkbyte, []byte(publickeystr)) == false {
+	if reflect.DeepEqual(jwkbyte, []byte(checkdata)) == false {
+		t.Fatalf("failed compare ConvertPublicKeyJWKEcdsaPrivateKey")
+	}
+	kid := GenerateHashFromCrptoKey(privatekey)
+	t.Log(kid)
+	pemprikey, err := EncodeEcdsaPrivateKey(encryptkey.EcdsaKey.PrivateKey)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	if reflect.DeepEqual(pemprikey, []byte(privatekey)) == false {
+		t.Fatalf("failed compare ConvertPublicKeyJWKEcdsaPrivateKey")
+	}
+	t.Log("success ConvertPublicKeyJWKEcdsaPrivateKey")
+
+}
+
+func Test_ConvertPublicKeyJWKOpenSSHPrivateKey(t *testing.T) {
+
+	privatekey := `-----BEGIN OPEN PRIVATE KEY-----
+LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1JR2tBZ0VCQkRBVW8wQ281
+RlNnMHBENTkzaUtCTnF2eFoxanl6VzJRT0hJVlE4VmxUZnI4Y1p0WXE2NFhDYWgK
+c3JacFVabkorcmVnQndZRks0RUVBQ0toWkFOaUFBU1R4a0t4VHVmRVFRQ3pJTUtI
+dHhBQmkvSFJ5NFhsUWtRVQphRXVOVkQyWjhhRXExdUk2OVpWbzRCVk9wRUVpOFFq
+RnI1b21uYUN3SUsrNWVkQ3dxRVdTUHRXdEhhT3ZzNTZ4Ci80SVREdVozMEhHWFZv
+dk0zQlRJdEhOVmNjejJIcjg9Ci0tLS0tRU5EIEVDIFBSSVZBVEUgS0VZLS0tLS0K
+-----END OPEN PRIVATE KEY-----`
+
+	checkdata := `{"kty":"EC","kid":"aaaa","crv":"P-384","x":"k8ZCsU7nxEEAsyDCh7cQAYvx0cuF5UJEFGhLjVQ9mfGhKtbiOvWVaOAVTqRBIvEI","y":"xa-aJp2gsCCvuXnQsKhFkj7VrR2jr7Oesf-CEw7md9Bxl1aLzNwUyLRzVXHM9h6_","d":"FKNAqORUoNKQ-fd4igTar8WdY8s1tkDhyFUPFZU36_HGbWKuuFwmobK2aVGZyfq3"}`
+
+	encryptkey := &entity.EncryptKey{}
+	err := DecodePrivateKey([]byte(privatekey), encryptkey)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	jwkbyte, err := GenerateJSONWebKeyWithEcdsaPrivateKey(encryptkey.EcdsaKey.PrivateKey, "aaaa")
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	t.Log(string(jwkbyte))
+	if reflect.DeepEqual(jwkbyte, []byte(checkdata)) == false {
+		t.Fatalf("failed compare ConvertPublicKeyJWKOpenSSHPrivateKey")
+	}
+	kid := GenerateHashFromCrptoKey(privatekey)
+	t.Log(kid)
+	t.Log("success ConvertPublicKeyJWKOpenSSHPrivateKey")
+
+}
+
+func Test_ConvertPublicKeyJWKEcdsaPublicKey(t *testing.T) {
+
+	publickey := `-----BEGIN EC PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEZ1y5/pKS9hBBfPxzBdIGYceWf5ht
+PgYfnSPOLUerb63NsPCLGIODX8nPWQLBmBYWmcljPjFO3AvHEe7etnb3EA==
+-----END EC PUBLIC KEY-----
+`
+
+	checkdata := `{"kty":"EC","kid":"aaaa","crv":"P-256","alg":"ES256","x":"Z1y5_pKS9hBBfPxzBdIGYceWf5htPgYfnSPOLUerb60","y":"zbDwixiDg1_Jz1kCwZgWFpnJYz4xTtwLxxHu3rZ29xA"}`
+
+	encryptkey := &entity.EncryptKey{}
+	err := DecodePublicKey([]byte(publickey), encryptkey)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	jwkbyte, err := GenerateJSONWebKeyWithEcdsaPublicKey(encryptkey.EcdsaKey.PublicKey, "aaaa")
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	t.Log(string(jwkbyte))
+	if reflect.DeepEqual(jwkbyte, []byte(checkdata)) == false {
 		t.Fatalf("failed compare ConvertPublicKeyJWKEcdsaPublicKey")
 	}
 	kid := GenerateHashFromCrptoKey(publickey)
 	t.Log(kid)
+	jwk, err := ConvertToJSONWebKey(jwkbyte)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	pub, err := ConvertToEcdsaPublicFromJWK(&jwk)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	pempublickey, err := EncodeEcdsaPublicKey(pub)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	t.Log(string(pempublickey))
+	t.Log(publickey)
+	if reflect.DeepEqual(pempublickey, []byte(publickey)) == false {
+		t.Fatalf("failed compare ConvertPublicKeyJWKEcdsaPublicKey")
+	}
 	t.Log("success ConvertPublicKeyJWKEcdsaPublicKey")
 
 }

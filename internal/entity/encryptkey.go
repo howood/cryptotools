@@ -4,8 +4,8 @@ package entity
 type EncryptKeyType string
 
 const (
-	// EncryptTypeRsa is RSA KeyType
-	EncryptTypeRsa EncryptKeyType = "rsa"
+	// EncryptTypeRSA is RSA KeyType
+	EncryptTypeRSA EncryptKeyType = "rsa"
 	// EncryptTypeECDSA is ECDSASA KeyType
 	EncryptTypeECDSA EncryptKeyType = "ecdsa"
 )

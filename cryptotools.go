@@ -17,15 +17,15 @@ func NewPublicKeyCrypto(bits int) (*publickeycrypto.PublicKeyCrypto, error) {
 	if bits == 0 {
 		bits = defaultBits
 	}
-	return publickeycrypto.NewPublicKeyCrypto(bits, publickeycrypto.EncryptTypeRsa)
+	return publickeycrypto.NewPublicKeyCrypto(bits, publickeycrypto.EncryptTypeRSA)
 }
 
 // NewPublicKeyCryptoWithPEMPublicKey create PublicKeyCrypto with PEM PublicKey
 func NewPublicKeyCryptoWithPEMPublicKey(publickey []byte) (*publickeycrypto.PublicKeyCrypto, error) {
-	return publickeycrypto.NewPublicKeyCryptoWithPEMPublicKey(publickey, publickeycrypto.EncryptTypeRsa)
+	return publickeycrypto.NewPublicKeyCryptoWithPEMPublicKey(publickey, publickeycrypto.EncryptTypeRSA)
 }
 
 // NewPublicKeyCryptoWithJWKPublicKey create PublicKeyCrypto with JWK PublicKey
 func NewPublicKeyCryptoWithJWKPublicKey(publickey []byte) (*publickeycrypto.PublicKeyCrypto, error) {
-	return publickeycrypto.NewPublicKeyCryptoWithJWKPublicKey(publickey, publickeycrypto.EncryptTypeRsa)
+	return publickeycrypto.NewPublicKeyCryptoWithJWKPublicKey(publickey, publickeycrypto.EncryptTypeRSA)
 }

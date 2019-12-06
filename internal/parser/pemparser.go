@@ -38,7 +38,7 @@ func DecodePrivateKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 		}
 		key.Precompute()
 		encryptkey.RsaKey.PrivateKey = key
-		encryptkey.Keytype = entity.EncryptTypeRsa
+		encryptkey.Keytype = entity.EncryptTypeRSA
 	case blockTypeEcdsaPrivateKey:
 		var err error
 		encryptkey.EcdsaKey.PrivateKey, err = x509.ParseECPrivateKey(block.Bytes)
@@ -80,7 +80,7 @@ func DecodePublicKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 		if encryptkey.RsaKey.PublicKey, err = x509.ParsePKCS1PublicKey(block.Bytes); err != nil {
 			return err
 		}
-		encryptkey.Keytype = entity.EncryptTypeRsa
+		encryptkey.Keytype = entity.EncryptTypeRSA
 	case blockTypeEcdsaPublicKey:
 		keyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 		if err != nil {
@@ -194,7 +194,7 @@ func castPrivateKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.Enc
 	case *rsa.PrivateKey:
 		priv.Precompute()
 		encryptkey.RsaKey.PrivateKey = priv
-		encryptkey.Keytype = entity.EncryptTypeRsa
+		encryptkey.Keytype = entity.EncryptTypeRSA
 		return nil
 	default:
 		return errors.New("not RSA / ECDSA private key")
@@ -209,7 +209,7 @@ func castPublicKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.Encr
 		return nil
 	case *rsa.PublicKey:
 		encryptkey.RsaKey.PublicKey = priv
-		encryptkey.Keytype = entity.EncryptTypeRsa
+		encryptkey.Keytype = entity.EncryptTypeRSA
 		return nil
 	default:
 		return errors.New("not RSA / ECDSA private key")

@@ -11,6 +11,11 @@ import (
 	"github.com/howood/cryptotools/internal/parser"
 )
 
+const (
+	blockTypeEcdsaPrivateKey = "EC PRIVATE KEY"
+	blockTypeEcdsaPublicKey  = "EC PUBLIC KEY"
+)
+
 // GenerateEncryptedEcdsaPEM generates PEM type ECDSA private key and public ley
 func GenerateEncryptedEcdsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	derPrivateKey, derRsaPublicKey, err := GenerateEncryptedEcdsaDER(bits)
@@ -19,7 +24,7 @@ func GenerateEncryptedEcdsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	}
 
 	privateblock := &pem.Block{
-		Type:  "EC PRIVATE KEY",
+		Type:  blockTypeEcdsaPrivateKey,
 		Bytes: derPrivateKey,
 	}
 	if pwd != "" {
@@ -29,7 +34,7 @@ func GenerateEncryptedEcdsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	}
 
 	publicblock := &pem.Block{
-		Type:  "EC PUBLIC KEY",
+		Type:  blockTypeEcdsaPublicKey,
 		Bytes: derRsaPublicKey,
 	}
 

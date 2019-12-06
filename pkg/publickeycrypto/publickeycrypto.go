@@ -2,6 +2,7 @@ package publickeycrypto
 
 import (
 	"errors"
+	"log"
 
 	"github.com/howood/cryptotools/internal/encrypter"
 	"github.com/howood/cryptotools/internal/entity"
@@ -18,8 +19,8 @@ const (
 )
 
 const (
-	// EncryptTypeRsa is RSA KeyType
-	EncryptTypeRsa EncryptKeyType = EncryptKeyType(entity.EncryptTypeRsa)
+	// EncryptTypeRSA is RSA KeyType
+	EncryptTypeRSA EncryptKeyType = EncryptKeyType(entity.EncryptTypeRSA)
 	// EncryptTypeECDSA is ECDSASA KeyType
 	EncryptTypeECDSA EncryptKeyType = EncryptKeyType(entity.EncryptTypeECDSA)
 )
@@ -34,10 +35,15 @@ type PublicKeyCrypto struct {
 // NewPublicKeyCrypto create PublicKeyCrypto struct
 func NewPublicKeyCrypto(bits int, encryptType EncryptKeyType) (*PublicKeyCrypto, error) {
 	encryptkey, err := generateEncryptKey(bits, encryptType)
+	log.Print(encryptType)
+	if err != nil {
+		log.Print("33333333")
+		return nil, err
+	}
 	var encrypterRsa *encrypter.CryptoRsa
 	var encrypterEcdsa *encrypter.CryptoEcdsa
 	switch encryptkey.Keytype {
-	case entity.EncryptTypeRsa:
+	case entity.EncryptTypeRSA:
 		encrypterRsa = encrypter.NewCryptoRsa(&encryptkey.RsaKey)
 	case entity.EncryptTypeECDSA:
 		encrypterEcdsa = encrypter.NewCryptoEcdsa(&encryptkey.EcdsaKey)
@@ -48,16 +54,19 @@ func NewPublicKeyCrypto(bits int, encryptType EncryptKeyType) (*PublicKeyCrypto,
 		EncryptKey:     &encryptkey,
 		encrypterRsa:   encrypterRsa,
 		encrypterEcdsa: encrypterEcdsa,
-	}, err
+	}, nil
 }
 
 // NewPublicKeyCryptoWithPEMPublicKey create PublicKeyCrypto struct with PEM Public Key
 func NewPublicKeyCryptoWithPEMPublicKey(publickey []byte, encryptType EncryptKeyType) (*PublicKeyCrypto, error) {
 	encryptkey, err := generateKeyWithPEMPublicKey(publickey)
+	if err != nil {
+		return nil, err
+	}
 	var encrypterRsa *encrypter.CryptoRsa
 	var encrypterEcdsa *encrypter.CryptoEcdsa
 	switch encryptkey.Keytype {
-	case entity.EncryptTypeRsa:
+	case entity.EncryptTypeRSA:
 		encrypterRsa = encrypter.NewCryptoRsa(&encryptkey.RsaKey)
 	case entity.EncryptTypeECDSA:
 		encrypterEcdsa = encrypter.NewCryptoEcdsa(&encryptkey.EcdsaKey)
@@ -68,16 +77,19 @@ func NewPublicKeyCryptoWithPEMPublicKey(publickey []byte, encryptType EncryptKey
 		EncryptKey:     &encryptkey,
 		encrypterRsa:   encrypterRsa,
 		encrypterEcdsa: encrypterEcdsa,
-	}, err
+	}, nil
 }
 
 // NewPublicKeyCryptoWithJWKPublicKey create PublicKeyCrypto struct with JWK Public Key
 func NewPublicKeyCryptoWithJWKPublicKey(publickey []byte, encryptType EncryptKeyType) (*PublicKeyCrypto, error) {
-	encryptkey, err := generateRsaKeyWithJWKMPublicKey(publickey, encryptType)
+	encryptkey, err := generateKeyWithJWKMPublicKey(publickey, encryptType)
+	if err != nil {
+		return nil, err
+	}
 	var encrypterRsa *encrypter.CryptoRsa
 	var encrypterEcdsa *encrypter.CryptoEcdsa
 	switch encryptkey.Keytype {
-	case entity.EncryptTypeRsa:
+	case entity.EncryptTypeRSA:
 		encrypterRsa = encrypter.NewCryptoRsa(&encryptkey.RsaKey)
 	case entity.EncryptTypeECDSA:
 		encrypterEcdsa = encrypter.NewCryptoEcdsa(&encryptkey.EcdsaKey)
@@ -88,13 +100,13 @@ func NewPublicKeyCryptoWithJWKPublicKey(publickey []byte, encryptType EncryptKey
 		EncryptKey:     &encryptkey,
 		encrypterRsa:   encrypterRsa,
 		encrypterEcdsa: encrypterEcdsa,
-	}, err
+	}, nil
 }
 
 // Encrypt encrypts input data with publickey encryption
 func (ck *PublicKeyCrypto) Encrypt(input string) (string, error) {
 	switch ck.EncryptKey.Keytype {
-	case entity.EncryptTypeRsa:
+	case entity.EncryptTypeRSA:
 		return ck.encrypterRsa.EncryptWithBase64([]byte(input))
 	case entity.EncryptTypeECDSA:
 		return ck.encrypterEcdsa.EncryptWithBase64([]byte(input))
@@ -106,7 +118,7 @@ func (ck *PublicKeyCrypto) Encrypt(input string) (string, error) {
 // Decrypt decrypts input data with publickey encryption
 func (ck *PublicKeyCrypto) Decrypt(input string) (string, error) {
 	switch ck.EncryptKey.Keytype {
-	case entity.EncryptTypeRsa:
+	case entity.EncryptTypeRSA:
 		if ck.EncryptKey.RsaKey.PrivateKey == nil {
 			return "", errors.New("no private key available")
 		}
@@ -132,7 +144,7 @@ func (ck *PublicKeyCrypto) Decrypt(input string) (string, error) {
 // GetPrivateKey gets privatekey
 func (ck *PublicKeyCrypto) GetPrivateKey() ([]byte, error) {
 	switch ck.EncryptKey.Keytype {
-	case entity.EncryptTypeRsa:
+	case entity.EncryptTypeRSA:
 		return parser.EncodeRsaPrivateKeyPKCS1(ck.EncryptKey.RsaKey.PrivateKey), nil
 	case entity.EncryptTypeECDSA:
 		return parser.EncodeEcdsaPrivateKey(ck.EncryptKey.EcdsaKey.PrivateKey)
@@ -144,7 +156,7 @@ func (ck *PublicKeyCrypto) GetPrivateKey() ([]byte, error) {
 // GetPrivateKeyPKCS8 gets pkcs8 privatekey
 func (ck *PublicKeyCrypto) GetPrivateKeyPKCS8() ([]byte, error) {
 	switch ck.EncryptKey.Keytype {
-	case entity.EncryptTypeRsa:
+	case entity.EncryptTypeRSA:
 		return parser.EncodeRsaPrivateKeyPKCS8(ck.EncryptKey.RsaKey.PrivateKey)
 	default:
 		return nil, errors.New(errorInvalidEncryptType)
@@ -154,7 +166,7 @@ func (ck *PublicKeyCrypto) GetPrivateKeyPKCS8() ([]byte, error) {
 // GetPublicKey gets publickey
 func (ck *PublicKeyCrypto) GetPublicKey() ([]byte, error) {
 	switch ck.EncryptKey.Keytype {
-	case entity.EncryptTypeRsa:
+	case entity.EncryptTypeRSA:
 		return parser.EncodeRsaPublicKey(ck.EncryptKey.RsaKey.PublicKey)
 	case entity.EncryptTypeECDSA:
 		return parser.EncodeEcdsaPublicKey(ck.EncryptKey.EcdsaKey.PublicKey)
@@ -166,7 +178,7 @@ func (ck *PublicKeyCrypto) GetPublicKey() ([]byte, error) {
 // GetPublicKeyWithJWK gets jwk publickey
 func (ck *PublicKeyCrypto) GetPublicKeyWithJWK() ([]byte, error) {
 	switch ck.EncryptKey.Keytype {
-	case entity.EncryptTypeRsa:
+	case entity.EncryptTypeRSA:
 		kid := parser.GenerateHashFromCrptoKey(ck.EncryptKey.RsaKey.PublicKey)
 		return parser.GenerateJSONWebKeyWithRSAPublicKey(ck.EncryptKey.RsaKey.PublicKey, kid)
 	default:
@@ -177,7 +189,8 @@ func (ck *PublicKeyCrypto) GetPublicKeyWithJWK() ([]byte, error) {
 func generateEncryptKey(bits int, encryptType EncryptKeyType) (entity.EncryptKey, error) {
 	encryptkey := entity.EncryptKey{}
 	switch encryptType {
-	case EncryptTypeRsa:
+	case EncryptTypeRSA:
+		encryptkey.Keytype = entity.EncryptTypeRSA
 		privateKey, publicKey, err := generator.GenerateEncryptedRsaPEM(bits, "")
 		if err != nil {
 			return encryptkey, err
@@ -191,14 +204,10 @@ func generateEncryptKey(bits int, encryptType EncryptKeyType) (entity.EncryptKey
 		return encryptkey, nil
 
 	case EncryptTypeECDSA:
-		privateKey, publicKey, err := generator.GenerateEncryptedEcdsaPEM(bits, "")
+		var err error
+		encryptkey.Keytype = entity.EncryptTypeECDSA
+		encryptkey.EcdsaKey.PrivateKey, encryptkey.EcdsaKey.PublicKey, err = generator.GenerateEcdsaKeys(bits)
 		if err != nil {
-			return encryptkey, err
-		}
-		if err := parser.DecodePrivateKey(privateKey, &encryptkey); err != nil {
-			return encryptkey, err
-		}
-		if err := parser.DecodePublicKey(publicKey, &encryptkey); err != nil {
 			return encryptkey, err
 		}
 	}
@@ -213,11 +222,11 @@ func generateKeyWithPEMPublicKey(publickey []byte) (entity.EncryptKey, error) {
 	return encryptkey, nil
 }
 
-func generateRsaKeyWithJWKMPublicKey(publickey []byte, encryptType EncryptKeyType) (entity.EncryptKey, error) {
+func generateKeyWithJWKMPublicKey(publickey []byte, encryptType EncryptKeyType) (entity.EncryptKey, error) {
 	encryptkey := entity.EncryptKey{}
 	switch encryptType {
-	case EncryptTypeRsa:
-		encryptkey.Keytype = entity.EncryptTypeRsa
+	case EncryptTypeRSA:
+		encryptkey.Keytype = entity.EncryptTypeRSA
 		jwk, err := parser.ConvertToJSONWebKey([]byte(publickey))
 		if err != nil {
 			return encryptkey, err

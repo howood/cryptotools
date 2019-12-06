@@ -7,6 +7,11 @@ import (
 	"encoding/pem"
 )
 
+const (
+	blockTypeRsaPrivateKey = "RSA PRIVATE KEY"
+	blockTypeRsaPublicKey  = "RSA PUBLIC KEY"
+)
+
 func generatePrivateRsakey(bits int) (*rsa.PrivateKey, error) {
 	return rsa.GenerateKey(rand.Reader, bits)
 }
@@ -19,7 +24,7 @@ func GenerateEncryptedRsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	}
 
 	privateblock := &pem.Block{
-		Type:  "RSA PRIVATE KEY",
+		Type:  blockTypeRsaPrivateKey,
 		Bytes: derPrivateKey,
 	}
 	if pwd != "" {
@@ -29,7 +34,7 @@ func GenerateEncryptedRsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	}
 
 	publicblock := &pem.Block{
-		Type:  "RSA PUBLIC KEY",
+		Type:  blockTypeRsaPublicKey,
 		Bytes: derRsaPublicKey,
 	}
 

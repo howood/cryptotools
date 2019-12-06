@@ -197,7 +197,6 @@ func generateEncryptKey(bits int, encryptType EncryptKeyType) (entity.EncryptKey
 			return encryptkey, err
 		}
 		return encryptkey, nil
-
 	case EncryptTypeECDSA:
 		var err error
 		encryptkey.Keytype = entity.EncryptTypeECDSA

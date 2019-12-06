@@ -93,11 +93,16 @@ func DecodePublicKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 		if err != nil {
 			return err
 		}
-		var ok bool
-		if encryptkey.RsaKey.PublicKey, ok = keyInterface.(*rsa.PublicKey); !ok {
-			return errors.New("not RSA public key")
+		switch priv := keyInterface.(type) {
+		case *ecdsa.PublicKey:
+			encryptkey.EcdsaKey.PublicKey = priv
+			encryptkey.Keytype = entity.EncryptTypeECDSA
+		case *rsa.PublicKey:
+			encryptkey.RsaKey.PublicKey = priv
+			encryptkey.Keytype = entity.EncryptTypeRsa
+		default:
+			return errors.New("not RSA / ECDSA private key")
 		}
-		encryptkey.Keytype = entity.EncryptTypeRsa
 	default:
 		return fmt.Errorf("invalid public key type : %s", block.Type)
 	}

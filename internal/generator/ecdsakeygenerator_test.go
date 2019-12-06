@@ -17,6 +17,12 @@ func Test_EcdsaKeyGenerator(t *testing.T) {
 	}
 	t.Log(string(pri))
 	t.Log(string(pub))
+	if _, _, err := GenerateEncryptedEcdsaPEM(256, ""); err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	if _, _, err := GenerateEncryptedEcdsaPEM(521, ""); err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
 	if _, _, err := GenerateEncryptedEcdsaPEM(0, ""); err == nil {
 		t.Fatal("failed GenerateEncryptedEcdsaPEM ")
 	} else {

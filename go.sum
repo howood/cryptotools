@@ -1,3 +1,5 @@
+github.com/obscuren/ecies v0.0.0-20150213224233-7c0f4a9b18d9 h1:Q9JlyQu2TEEvmDnbiwhTis7qt3jpOt8spfuyaO6+vDw=
+github.com/obscuren/ecies v0.0.0-20150213224233-7c0f4a9b18d9/go.mod h1:Pxvzt51U7dqynm0OJwBLWHPfHygNVxGrxXE8AS16xf0=
 github.com/segmentio/ksuid v1.0.2 h1:9yBfKyw4ECGTdALaF09Snw3sLJmYIX6AbPJrAy6MrDc=
 github.com/segmentio/ksuid v1.0.2/go.mod h1:BXuJDr2byAiHuQaQtSKoXh1J0YmUDurywOXgB2w+OSU=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

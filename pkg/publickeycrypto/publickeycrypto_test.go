@@ -70,6 +70,9 @@ func Test_PublicKeyCryptoWithPublicKey(t *testing.T) {
 	t.Log(string(publickey))
 
 	pcwp, err := NewPublicKeyCryptoWithPEMPublicKey(publickey, EncryptTypeRsa)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
 
 	encryptdata, err := pcwp.Encrypt(testdata)
 	if err != nil {

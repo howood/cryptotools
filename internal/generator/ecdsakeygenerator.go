@@ -11,21 +11,7 @@ import (
 	"github.com/howood/cryptotools/internal/parser"
 )
 
-func generatePrivateEcdsakey(bits int) (*ecdsa.PrivateKey, error) {
-	switch bits {
-	case 256:
-		return ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	case 384:
-		return ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
-	case 521:
-		return ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
-	default:
-		return nil, errors.New("Invalid bits")
-	}
-
-}
-
-// GenerateEncryptedPEM generates PEM type private key and public ley
+// GenerateEncryptedEcdsaPEM generates PEM type ECDSA private key and public ley
 func GenerateEncryptedEcdsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	derPrivateKey, derRsaPublicKey, err := GenerateEncryptedEcdsaDER(bits)
 	if err != nil {
@@ -50,7 +36,7 @@ func GenerateEncryptedEcdsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	return pem.EncodeToMemory(privateblock), pem.EncodeToMemory(publicblock), nil
 }
 
-// GenerateEncryptedDER generates DER type private key and public key
+// GenerateEncryptedEcdsaDER generates DER type ECDSA private key and public key
 func GenerateEncryptedEcdsaDER(bits int) ([]byte, []byte, error) {
 	privatekey, publickey, err := GenerateEcdsaKeys(bits)
 	if err != nil {
@@ -68,7 +54,7 @@ func GenerateEncryptedEcdsaDER(bits int) ([]byte, []byte, error) {
 	return derPrivateKey, derPublicKey, nil
 }
 
-// GenerateEcdsaKeys generates DER type private key and public key
+// GenerateEcdsaKeys generates DER type ECDSAprivate key and public key
 func GenerateEcdsaKeys(bits int) (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
 	privatekey, err := generatePrivateEcdsakey(bits)
 	if err != nil {
@@ -76,4 +62,18 @@ func GenerateEcdsaKeys(bits int) (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
 	}
 	publickey := privatekey.Public().(*ecdsa.PublicKey)
 	return privatekey, publickey, nil
+}
+
+func generatePrivateEcdsakey(bits int) (*ecdsa.PrivateKey, error) {
+	switch bits {
+	case 256:
+		return ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	case 384:
+		return ecdsa.GenerateKey(elliptic.P384(), rand.Reader)
+	case 521:
+		return ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
+	default:
+		return nil, errors.New("Invalid bits")
+	}
+
 }

@@ -190,15 +190,10 @@ func generateEncryptKey(bits int, encryptType EncryptKeyType) (entity.EncryptKey
 	encryptkey := entity.EncryptKey{}
 	switch encryptType {
 	case EncryptTypeRSA:
+		var err error
 		encryptkey.Keytype = entity.EncryptTypeRSA
-		privateKey, publicKey, err := generator.GenerateEncryptedRsaPEM(bits, "")
+		encryptkey.RsaKey.PrivateKey, encryptkey.RsaKey.PublicKey, err = generator.GenerateRsaKeys(bits)
 		if err != nil {
-			return encryptkey, err
-		}
-		if err := parser.DecodePrivateKey(privateKey, &encryptkey); err != nil {
-			return encryptkey, err
-		}
-		if err := parser.DecodePublicKey(publicKey, &encryptkey); err != nil {
 			return encryptkey, err
 		}
 		return encryptkey, nil

@@ -533,7 +533,7 @@ WQ44XaHY6P62IhxyDR0nGBHLy1PwxWZKDsFK6BwpJ3VX6bb1ZkbhDMr26gCp
 	if reflect.DeepEqual(jwk, []byte(checkdata)) == false {
 		t.Fatalf("failed compare ConvertPublicKeyJWKPrivateKey")
 	}
-	kid := GenerateHashFromRsaKey(encryptkey.RsaKey.PrivateKey)
+	kid := GenerateHashFromCrptoKey(encryptkey.RsaKey.PrivateKey)
 	t.Log(kid)
 
 	t.Log("success ConvertPublicKeyJWKPrivateKey")
@@ -556,8 +556,6 @@ btwv7AzaptOn66KJ7tEo92yJbMdZvOxQfCLnjk9FqoLqFAPtiRXoqlNUfK7nAj9z
 Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 -----END PUBLIC KEY-----`
 
-	//publickey2 := `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOmKVTTwJ3Xthb0UOydF+KRSKgUvSfO6n8tAuiwN/PmM`
-
 	checkdata := `{"kty":"RSA","kid":"aaaa","alg":"RS256","n":"opHmB0gquCxhX46Tn-O5EfiAVUmjrCqOJLeZ0wZEaZpNDOUpbKO6Vb_MEJUiXfzoRH6Q23H3inzl02XQE1HFwdV7EuT1ineHAL7h1MVwkFX2iBzPxuyg0pGl_yDg8aSWIWT0E-dlbAGXqzz6uISsqURRUQYrVlirDV8JnQd3QHE87u4g5E00fKmwuH6viFlVr_zwvAU0airh0Fk4AgikQdJxiGIzfOCapmy-LlnDb7Hu0bH9fUK04rr57F3LU_-9QPG7FoLYVFjg08dwlo8O_sGMad8K7UGHuZBIyRz5SA9nmaCTj5xGjmpsJ1ZL8W5puUs_OWSFkIuDhPix-5vok_4Iw4O5jDiFGadJqHpfEGhZWL0037gg7X0YaFudvsdZdHrr9oFI3NUeAJGq82quns_9c1ARiYssmt3YP5dkVilSfX0U7vM1QYcwffmH48-V7t-GN09PdFdN-iXJQlg9nwzE573YHTXWdzgrN3KqGoRcaBCRcaq-nRW8RcHReIkxgAdXzQl2sSJLphZNH4pfnSrR7ChAEk1ZR567L-malLKARkI3lNGlMFGvhjxpH1cHJeYGo2bHzYtbVhoNujF6btwv7AzaptOn66KJ7tEo92yJbMdZvOxQfCLnjk9FqoLqFAPtiRXoqlNUfK7nAj9zSflwh6m3w5TyQziTOp9O468","e":"AQAB"}`
 
 	encryptkey := &entity.EncryptKey{}
@@ -573,8 +571,36 @@ Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 	if reflect.DeepEqual(jwk, []byte(checkdata)) == false {
 		t.Fatalf("failed compare ConvertPublicKeyJWKPublicKey")
 	}
-	kid := GenerateHashFromRsaKey(encryptkey.RsaKey.PublicKey)
+	kid := GenerateHashFromCrptoKey(encryptkey.RsaKey.PublicKey)
 	t.Log(kid)
 	t.Log("success ConvertPublicKeyJWKPublicKey")
+
+}
+
+func Test_ConvertPublicKeyJWKEcdsaPublicKey(t *testing.T) {
+
+	publickeystr := `{"kty":"EC","kid":"aaaa","crv":"P-256","alg":"ES256","x":"tey_ODRaouIU-Eu3hu_1q5O6yzGPzHjsJKTmI3XWmRs","y":"nLZnkOgPvbdIgds50-H-FSjuOkab2Y5cmSmvd-N8kl4"}`
+
+	jwk, err := ConvertToJSONWebKey([]byte(publickeystr))
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	publickey, err := ConvertToEcdsaPublicFromJWK(&jwk)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+
+	jwkbyte, err := GenerateJSONWebKeyWithEcdsaPublicKey(publickey, "aaaa")
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	t.Log(string(jwkbyte))
+	t.Log(publickeystr)
+	if reflect.DeepEqual(jwkbyte, []byte(publickeystr)) == false {
+		t.Fatalf("failed compare ConvertPublicKeyJWKEcdsaPublicKey")
+	}
+	kid := GenerateHashFromCrptoKey(publickey)
+	t.Log(kid)
+	t.Log("success ConvertPublicKeyJWKEcdsaPublicKey")
 
 }

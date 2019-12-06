@@ -38,6 +38,16 @@ func GenerateJSONWebKeyWithRSAPublicKey(publickey *rsa.PublicKey, kid string) ([
 	return jwk.MarshalJSON()
 }
 
+// GenerateJSONWebKeyWithEcdsaPublicKey convert ecdsa publickey to JWK
+func GenerateJSONWebKeyWithEcdsaPublicKey(publickey *ecdsa.PublicKey, kid string) ([]byte, error) {
+	jwk := jose.JSONWebKey{
+		KeyID:     kid,
+		Key:       publickey,
+		Algorithm: getPublickeyAlgorithm(publickey),
+	}
+	return jwk.MarshalJSON()
+}
+
 // ConvertToRSAPublicFromJWK convert to RSA public key from JWK
 func ConvertToRSAPublicFromJWK(key *jose.JSONWebKey) (*rsa.PublicKey, error) {
 	res, ok := key.Key.(*rsa.PublicKey)
@@ -56,8 +66,17 @@ func ConvertToRSAPrivateFromJWK(key *jose.JSONWebKey) (*rsa.PrivateKey, error) {
 	return res, nil
 }
 
-// GenerateHashFromRsaKey generates Hash from RSA provate / public key
-func GenerateHashFromRsaKey(key interface{}) string {
+// ConvertToEcdsaPublicFromJWK convert to ECDSA public key from JWK
+func ConvertToEcdsaPublicFromJWK(key *jose.JSONWebKey) (*ecdsa.PublicKey, error) {
+	res, ok := key.Key.(*ecdsa.PublicKey)
+	if !ok {
+		return res, errors.New("Could not convert key to Ecdsa Public Key")
+	}
+	return res, nil
+}
+
+// GenerateHashFromCrptoKey generates Hash from private / public key
+func GenerateHashFromCrptoKey(key interface{}) string {
 	hasher := md5.New()
 	hasher.Write([]byte(fmt.Sprintf("%v", key)))
 	return hex.EncodeToString(hasher.Sum(nil))

@@ -167,7 +167,7 @@ func (ck *PublicKeyCrypto) GetPublicKey() ([]byte, error) {
 func (ck *PublicKeyCrypto) GetPublicKeyWithJWK() ([]byte, error) {
 	switch ck.EncryptKey.Keytype {
 	case entity.EncryptTypeRsa:
-		kid := parser.GenerateHashFromRsaKey(ck.EncryptKey.RsaKey.PublicKey)
+		kid := parser.GenerateHashFromCrptoKey(ck.EncryptKey.RsaKey.PublicKey)
 		return parser.GenerateJSONWebKeyWithRSAPublicKey(ck.EncryptKey.RsaKey.PublicKey, kid)
 	default:
 		return nil, errors.New(errorInvalidEncryptType)

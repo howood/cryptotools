@@ -9,6 +9,7 @@ import (
 	"github.com/howood/cryptotools/internal/parser"
 )
 
+// EncryptKeyType is EncryptKey KeyType
 type EncryptKeyType entity.EncryptKeyType
 
 const (
@@ -17,7 +18,9 @@ const (
 )
 
 const (
-	EncryptTypeRsa   EncryptKeyType = EncryptKeyType(entity.EncryptTypeRsa)
+	// EncryptTypeRsa is RSA KeyType
+	EncryptTypeRsa EncryptKeyType = EncryptKeyType(entity.EncryptTypeRsa)
+	// EncryptTypeECDSA is ECDSASA KeyType
 	EncryptTypeECDSA EncryptKeyType = EncryptKeyType(entity.EncryptTypeECDSA)
 )
 

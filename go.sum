@@ -1,4 +1,5 @@
-github.com/obscuren/ecies v0.0.0-20150213224233-7c0f4a9b18d9 h1:Q9JlyQu2TEEvmDnbiwhTis7qt3jpOt8spfuyaO6+vDw=
+github.com/howood/ecies v0.0.0-20150213224233-7c0f4a9b18d9 h1:noEam0CBqejmfrPb03UYq6GnhpHimKlQjZcghOx6354=
+github.com/howood/ecies v0.0.0-20150213224233-7c0f4a9b18d9/go.mod h1:2ED9naaZT6Zb4WRM4gJ5gP0WrfqWrjOVCFnyeulefXc=
 github.com/obscuren/ecies v0.0.0-20150213224233-7c0f4a9b18d9/go.mod h1:Pxvzt51U7dqynm0OJwBLWHPfHygNVxGrxXE8AS16xf0=
 github.com/segmentio/ksuid v1.0.2 h1:9yBfKyw4ECGTdALaF09Snw3sLJmYIX6AbPJrAy6MrDc=
 github.com/segmentio/ksuid v1.0.2/go.mod h1:BXuJDr2byAiHuQaQtSKoXh1J0YmUDurywOXgB2w+OSU=

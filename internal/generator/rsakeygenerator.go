@@ -11,7 +11,7 @@ func generatePrivateRsakey(bits int) (*rsa.PrivateKey, error) {
 	return rsa.GenerateKey(rand.Reader, bits)
 }
 
-// GenerateEncryptedPEM generates PEM type private key and public key
+// GenerateEncryptedRsaPEM generates PEM type RSA private key and public key
 func GenerateEncryptedRsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	derPrivateKey, derRsaPublicKey, err := GenerateEncryptedRsaDER(bits)
 	if err != nil {
@@ -36,18 +36,24 @@ func GenerateEncryptedRsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	return pem.EncodeToMemory(privateblock), pem.EncodeToMemory(publicblock), nil
 }
 
-// GenerateEncryptedDER generates DER type private key and public key
+// GenerateEncryptedRsaDER generates DER type RSA private key and public key
 func GenerateEncryptedRsaDER(bits int) ([]byte, []byte, error) {
+	privatekey, publickey, err := GenerateRsaKeys(bits)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	derPrivateKey := x509.MarshalPKCS1PrivateKey(privatekey)
+	derRsaPublicKey := x509.MarshalPKCS1PublicKey(publickey)
+	return derPrivateKey, derRsaPublicKey, nil
+}
+
+// GenerateRsaKeys generates DER type  RSA private key and public key
+func GenerateRsaKeys(bits int) (*rsa.PrivateKey, *rsa.PublicKey, error) {
 	privatekey, err := generatePrivateRsakey(bits)
 	if err != nil {
 		return nil, nil, err
 	}
-	publickey := privatekey.Public()
-
-	derPrivateKey := x509.MarshalPKCS1PrivateKey(privatekey)
-	var derRsaPublicKey []byte
-	if rsaPublicKeyPointer, ok := publickey.(*rsa.PublicKey); ok {
-		derRsaPublicKey = x509.MarshalPKCS1PublicKey(rsaPublicKeyPointer)
-	}
-	return derPrivateKey, derRsaPublicKey, nil
+	publickey := privatekey.Public().(*rsa.PublicKey)
+	return privatekey, publickey, nil
 }

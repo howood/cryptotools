@@ -18,6 +18,9 @@ func main() {
 	encryptdata := cc.Encrypt(testdata)
 	log.Printf("encryptdata : %s", encryptdata)
 	decryptdata, err := cc.Decrypt(encryptdata)
+	if err != nil {
+		log.Fatalf("failed  :%#v", err)
+	}
 	log.Printf("decryptdata : %s", decryptdata)
 
 }

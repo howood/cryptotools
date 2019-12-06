@@ -4,9 +4,8 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 
-	"github.com/obscuren/ecies"
-
 	"github.com/howood/cryptotools/internal/entity"
+	"github.com/howood/ecies"
 )
 
 // CryptoEcdsa represents Ecdsa encryption struct

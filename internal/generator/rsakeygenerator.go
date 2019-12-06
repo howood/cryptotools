@@ -11,7 +11,7 @@ func generatePrivateRsakey(bits int) (*rsa.PrivateKey, error) {
 	return rsa.GenerateKey(rand.Reader, bits)
 }
 
-// GenerateEncryptedPEM generates PEM type private key and public ley
+// GenerateEncryptedPEM generates PEM type private key and public key
 func GenerateEncryptedRsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	derPrivateKey, derRsaPublicKey, err := GenerateEncryptedRsaDER(bits)
 	if err != nil {
@@ -36,7 +36,7 @@ func GenerateEncryptedRsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	return pem.EncodeToMemory(privateblock), pem.EncodeToMemory(publicblock), nil
 }
 
-// GenerateEncryptedDER generates DER type private key and public ley
+// GenerateEncryptedDER generates DER type private key and public key
 func GenerateEncryptedRsaDER(bits int) ([]byte, []byte, error) {
 	privatekey, err := generatePrivateRsakey(bits)
 	if err != nil {

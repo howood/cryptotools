@@ -1,15 +1,15 @@
 package entity
 
-type EncriptKeyType string
+type EncryptKeyType string
 
 const (
-	EncriptTypeRsa   EncriptKeyType = "rsa"
-	EncriptTypeECDSA EncriptKeyType = "ecdsa"
+	EncryptTypeRsa   EncryptKeyType = "rsa"
+	EncryptTypeECDSA EncryptKeyType = "ecdsa"
 )
 
 // EncryptKey represents private & public key
 type EncryptKey struct {
-	Keytype    EncriptKeyType
+	Keytype    EncryptKeyType
 	RsaKey     RsaKey
 	EcdsaKey   EcdsaKey
 	Ed25519Key Ed25519Key

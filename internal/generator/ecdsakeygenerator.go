@@ -33,7 +33,7 @@ func GenerateEncryptedEcdsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	}
 
 	privateblock := &pem.Block{
-		Type:  "RSA PRIVATE KEY",
+		Type:  "EC PRIVATE KEY",
 		Bytes: derPrivateKey,
 	}
 	if pwd != "" {
@@ -43,28 +43,37 @@ func GenerateEncryptedEcdsaPEM(bits int, pwd string) ([]byte, []byte, error) {
 	}
 
 	publicblock := &pem.Block{
-		Type:  "RSA PUBLIC KEY",
+		Type:  "EC PUBLIC KEY",
 		Bytes: derRsaPublicKey,
 	}
 
 	return pem.EncodeToMemory(privateblock), pem.EncodeToMemory(publicblock), nil
 }
 
-// GenerateEncryptedDER generates DER type private key and public ley
+// GenerateEncryptedDER generates DER type private key and public key
 func GenerateEncryptedEcdsaDER(bits int) ([]byte, []byte, error) {
-	privatekey, err := generatePrivateEcdsakey(bits)
+	privatekey, publickey, err := GenerateEcdsaKeys(bits)
 	if err != nil {
 		return nil, nil, err
 	}
-	publickey := privatekey.Public().(ecdsa.PublicKey)
 
 	derPrivateKey, err := parser.EncodeEcdsaPrivateKey(privatekey)
 	if err != nil {
 		return nil, nil, err
 	}
-	derPublicKey, err := parser.EncodeEcdsaPublicKey(&publickey)
+	derPublicKey, err := parser.EncodeEcdsaPublicKey(publickey)
 	if err != nil {
 		return nil, nil, err
 	}
 	return derPrivateKey, derPublicKey, nil
+}
+
+// GenerateEcdsaKeys generates DER type private key and public key
+func GenerateEcdsaKeys(bits int) (*ecdsa.PrivateKey, *ecdsa.PublicKey, error) {
+	privatekey, err := generatePrivateEcdsakey(bits)
+	if err != nil {
+		return nil, nil, err
+	}
+	publickey := privatekey.Public().(*ecdsa.PublicKey)
+	return privatekey, publickey, nil
 }

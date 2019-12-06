@@ -40,14 +40,17 @@ func Test_PublicKeyCrypto(t *testing.T) {
 	} else {
 		t.Logf("failed test %#v", err)
 	}
-	privatekey := pc.GetRsaPrivateKey()
+	privatekey, err := pc.GetPrivateKey()
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
 	t.Log(string(privatekey))
-	privatekeypkcs8, err := pc.GetRsaPrivateKeyPKCS8()
+	privatekeypkcs8, err := pc.GetPrivateKeyPKCS8()
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
 	t.Log(string(privatekeypkcs8))
-	publickey, err := pc.GetRsaPublicKey()
+	publickey, err := pc.GetPublicKey()
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -60,13 +63,13 @@ func Test_PublicKeyCryptoWithPublicKey(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	publickey, err := pc.GetRsaPublicKey()
+	publickey, err := pc.GetPublicKey()
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
 	t.Log(string(publickey))
 
-	pcwp, err := NewPublicKeyCryptoWithPEMPublicKey(publickey)
+	pcwp, err := NewPublicKeyCryptoWithPEMPublicKey(publickey, EncryptTypeRsa)
 
 	encryptdata, err := pcwp.Encrypt(testdata)
 	if err != nil {
@@ -84,7 +87,7 @@ func Test_PublicKeyCryptoWithPublicKey(t *testing.T) {
 	} else {
 		t.Logf("failed test %#v", err)
 	}
-	if _, err := NewPublicKeyCryptoWithPEMPublicKey([]byte("sss")); err == nil {
+	if _, err := NewPublicKeyCryptoWithPEMPublicKey([]byte("sss"), EncryptTypeRsa); err == nil {
 		t.Fatal("failed NewPublicKeyCryptoWithPEMPublicKey ")
 	} else {
 		t.Logf("failed test %#v", err)
@@ -97,13 +100,16 @@ func Test_PublicKeyCryptoWithJWKPublicKey(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	publickey, err := pc.GetRsaPublicKeyWithJWK()
+	publickey, err := pc.GetPublicKeyWithJWK()
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
 	t.Log(string(publickey))
 
-	pcwp, err := NewPublicKeyCryptoWithJWKPublicKey(publickey)
+	pcwp, err := NewPublicKeyCryptoWithJWKPublicKey(publickey, EncryptTypeRsa)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
 
 	encryptdata, err := pcwp.Encrypt(testdata)
 	if err != nil {
@@ -116,7 +122,7 @@ func Test_PublicKeyCryptoWithJWKPublicKey(t *testing.T) {
 	if reflect.DeepEqual([]byte(decryptdata), []byte(testdata)) == false {
 		t.Fatal("failed PublicKeyCryptoWithJWKPublicKey ")
 	}
-	if _, err := NewPublicKeyCryptoWithJWKPublicKey([]byte("sss")); err == nil {
+	if _, err := NewPublicKeyCryptoWithJWKPublicKey([]byte("sss"), EncryptTypeRsa); err == nil {
 		t.Fatal("failed NewPublicKeyCryptoWithJWKPublicKey ")
 	} else {
 		t.Logf("failed test %#v", err)

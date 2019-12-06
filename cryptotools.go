@@ -22,10 +22,10 @@ func NewPublicKeyCrypto(bits int) (*publickeycrypto.PublicKeyCrypto, error) {
 
 // NewPublicKeyCryptoWithPEMPublicKey create PublicKeyCrypto with PEM PublicKey
 func NewPublicKeyCryptoWithPEMPublicKey(publickey []byte) (*publickeycrypto.PublicKeyCrypto, error) {
-	return publickeycrypto.NewPublicKeyCryptoWithPEMPublicKey(publickey)
+	return publickeycrypto.NewPublicKeyCryptoWithPEMPublicKey(publickey, publickeycrypto.EncryptTypeRsa)
 }
 
 // NewPublicKeyCryptoWithJWKPublicKey create PublicKeyCrypto with JWK PublicKey
 func NewPublicKeyCryptoWithJWKPublicKey(publickey []byte) (*publickeycrypto.PublicKeyCrypto, error) {
-	return publickeycrypto.NewPublicKeyCryptoWithJWKPublicKey(publickey)
+	return publickeycrypto.NewPublicKeyCryptoWithJWKPublicKey(publickey, publickeycrypto.EncryptTypeRsa)
 }

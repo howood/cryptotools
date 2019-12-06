@@ -26,7 +26,6 @@ func DecodePrivateKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 	if block == nil {
 		return errors.New("failed to decode private key data")
 	}
-	var err error
 	switch block.Type {
 	case blockTypeRsaPrivateKey:
 		key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
@@ -35,25 +34,31 @@ func DecodePrivateKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 		}
 		key.Precompute()
 		encryptkey.RsaKey.PrivateKey = key
-		encryptkey.Keytype = entity.EncriptTypeRsa
+		encryptkey.Keytype = entity.EncryptTypeRsa
 	case blockTypeEcdsaPrivateKey:
+		var err error
 		encryptkey.EcdsaKey.PrivateKey, err = x509.ParseECPrivateKey(block.Bytes)
 		if err != nil {
 			return err
 		}
-		encryptkey.Keytype = entity.EncriptTypeECDSA
+		encryptkey.Keytype = entity.EncryptTypeECDSA
 	case blockTypePrivateKey:
 		keyInterface, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 		if err != nil {
 			return err
 		}
-		key, ok := keyInterface.(*rsa.PrivateKey)
-		if !ok {
-			return errors.New("not RSA private key")
+		switch priv := keyInterface.(type) {
+		case *ecdsa.PrivateKey:
+			encryptkey.EcdsaKey.PrivateKey = priv
+			encryptkey.Keytype = entity.EncryptTypeECDSA
+
+		case *rsa.PrivateKey:
+			priv.Precompute()
+			encryptkey.RsaKey.PrivateKey = priv
+			encryptkey.Keytype = entity.EncryptTypeRsa
+		default:
+			return errors.New("not RSA / ECDSA private key")
 		}
-		key.Precompute()
-		encryptkey.RsaKey.PrivateKey = key
-		encryptkey.Keytype = entity.EncriptTypeRsa
 	default:
 		return fmt.Errorf("invalid private key type : %s", block.Type)
 	}
@@ -72,7 +77,7 @@ func DecodePublicKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 		if encryptkey.RsaKey.PublicKey, err = x509.ParsePKCS1PublicKey(block.Bytes); err != nil {
 			return err
 		}
-		encryptkey.Keytype = entity.EncriptTypeRsa
+		encryptkey.Keytype = entity.EncryptTypeRsa
 	case blockTypeEcdsaPublicKey:
 		keyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 		if err != nil {
@@ -82,7 +87,7 @@ func DecodePublicKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 		if encryptkey.EcdsaKey.PublicKey, ok = keyInterface.(*ecdsa.PublicKey); !ok {
 			return errors.New("not ECDSA public key")
 		}
-		encryptkey.Keytype = entity.EncriptTypeECDSA
+		encryptkey.Keytype = entity.EncryptTypeECDSA
 	case blockTypePublicKey:
 		keyInterface, err := x509.ParsePKIXPublicKey(block.Bytes)
 		if err != nil {
@@ -92,7 +97,7 @@ func DecodePublicKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 		if encryptkey.RsaKey.PublicKey, ok = keyInterface.(*rsa.PublicKey); !ok {
 			return errors.New("not RSA public key")
 		}
-		encryptkey.Keytype = entity.EncriptTypeRsa
+		encryptkey.Keytype = entity.EncryptTypeRsa
 	default:
 		return fmt.Errorf("invalid public key type : %s", block.Type)
 	}

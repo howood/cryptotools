@@ -143,14 +143,7 @@ func (ck *PublicKeyCrypto) Decrypt(input string) (string, error) {
 
 // GetPrivateKey gets privatekey
 func (ck *PublicKeyCrypto) GetPrivateKey() ([]byte, error) {
-	switch ck.EncryptKey.Keytype {
-	case entity.EncryptTypeRSA:
-		return parser.EncodeRsaPrivateKeyPKCS1(ck.EncryptKey.RsaKey.PrivateKey), nil
-	case entity.EncryptTypeECDSA:
-		return parser.EncodeEcdsaPrivateKey(ck.EncryptKey.EcdsaKey.PrivateKey)
-	default:
-		return nil, errors.New(errorInvalidEncryptType)
-	}
+	return parser.EncodePrivateKey(ck.EncryptKey)
 }
 
 // GetPrivateKeyPKCS8 gets pkcs8 privatekey
@@ -165,14 +158,7 @@ func (ck *PublicKeyCrypto) GetPrivateKeyPKCS8() ([]byte, error) {
 
 // GetPublicKey gets publickey
 func (ck *PublicKeyCrypto) GetPublicKey() ([]byte, error) {
-	switch ck.EncryptKey.Keytype {
-	case entity.EncryptTypeRSA:
-		return parser.EncodeRsaPublicKey(ck.EncryptKey.RsaKey.PublicKey)
-	case entity.EncryptTypeECDSA:
-		return parser.EncodeEcdsaPublicKey(ck.EncryptKey.EcdsaKey.PublicKey)
-	default:
-		return nil, errors.New(errorInvalidEncryptType)
-	}
+	return parser.EncodePublicKey(ck.EncryptKey)
 }
 
 // GetPublicKeyWithJWK gets jwk publickey

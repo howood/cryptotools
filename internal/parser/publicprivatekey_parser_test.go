@@ -603,7 +603,7 @@ X8nPWQLBmBYWmcljPjFO3AvHEe7etnb3EA==
 	}
 	kid := GenerateHashFromCrptoKey(privatekey)
 	t.Log(kid)
-	pemprikey, err := EncodeEcdsaPrivateKey(encryptkey.EcdsaKey.PrivateKey)
+	pemprikey, err := EncodePrivateKey(encryptkey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -614,35 +614,83 @@ X8nPWQLBmBYWmcljPjFO3AvHEe7etnb3EA==
 
 }
 
-func Test_ConvertPublicKeyJWKOpenSSHPrivateKey(t *testing.T) {
+func Test_ConvertPublicKeyJWKOpenSSHPrivateKeyRsa(t *testing.T) {
 
-	privatekey := `-----BEGIN OPEN PRIVATE KEY-----
-LS0tLS1CRUdJTiBFQyBQUklWQVRFIEtFWS0tLS0tCk1JR2tBZ0VCQkRBVW8wQ281
-RlNnMHBENTkzaUtCTnF2eFoxanl6VzJRT0hJVlE4VmxUZnI4Y1p0WXE2NFhDYWgK
-c3JacFVabkorcmVnQndZRks0RUVBQ0toWkFOaUFBU1R4a0t4VHVmRVFRQ3pJTUtI
-dHhBQmkvSFJ5NFhsUWtRVQphRXVOVkQyWjhhRXExdUk2OVpWbzRCVk9wRUVpOFFq
-RnI1b21uYUN3SUsrNWVkQ3dxRVdTUHRXdEhhT3ZzNTZ4Ci80SVREdVozMEhHWFZv
-dk0zQlRJdEhOVmNjejJIcjg9Ci0tLS0tRU5EIEVDIFBSSVZBVEUgS0VZLS0tLS0K
------END OPEN PRIVATE KEY-----`
+	privatekey := `-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAABFwAAAAdzc2gtcn
+NhAAAAAwEAAQAAAQEAwkHktSFsqd3874srhzpUKCXojuYjtC4FaTs1en8SWiSZ9W1189LH
+wtTbCOUDXzxtlugYaPHQZtJcFQhV7UkZKKdgAnR/wB4llyRcoZZ0BIRuBfarc1sjz9IqlK
+PcR6WL7EKRTC544IjNJLkjK2VjJy2/PSAQuXFp5PAXJOkVg+jE6tuICp2bzVzTsrDDZvys
+7j6apIcBbBEVPBZnnueLZgcQhTGhYsulfEyrjPwUZqAg15MCdc4VGBYBonMV8Fjcp6bN1X
+umI8Tkse3BiQ0XGH56VbRDEdOQwMs9Aygpx4gzA++/bdnIER5DhPjUCTFTgEPE3NzMUx/B
+hrlFP0r0uwAAA+B+U4F5flOBeQAAAAdzc2gtcnNhAAABAQDCQeS1IWyp3fzviyuHOlQoJe
+iO5iO0LgVpOzV6fxJaJJn1bXXz0sfC1NsI5QNfPG2W6Bho8dBm0lwVCFXtSRkop2ACdH/A
+HiWXJFyhlnQEhG4F9qtzWyPP0iqUo9xHpYvsQpFMLnjgiM0kuSMrZWMnLb89IBC5cWnk8B
+ck6RWD6MTq24gKnZvNXNOysMNm/KzuPpqkhwFsERU8Fmee54tmBxCFMaFiy6V8TKuM/BRm
+oCDXkwJ1zhUYFgGicxXwWNynps3Ve6YjxOSx7cGJDRcYfnpVtEMR05DAyz0DKCnHiDMD77
+9t2cgRHkOE+NQJMVOAQ8Tc3MxTH8GGuUU/SvS7AAAAAwEAAQAAAQA79GBlMwq5psUBHb/y
+faMpvQF40TjlzGppHxgTVZLRdYh7AiysczqqPE3aAey3gQwFzl5yTWfXxEcdSrRShwQX0w
+jD2TbwkZ1id5uLV8c4+bKHbqld8hwscR4pQCWli0eTRLxZeeJe0noWQnnDVAh1OB5U/EeN
+JJ7dROivwKyeSDgIkVVL6CDSptGUZdyfc0+E1YZNALJQzDLwVszP47vLOOelshYIvFJgAh
+d/41gNChvhzeEIiOU3cmR7/xd96UXfCCFidUdrO3dl+jggBAMqi64VuMTgl6l/SMBNL6DA
+COdlAKOwlUWC9eeKS5Pz46EYo0maZFI2F9w/ZvLKBe0JAAAAgBPituSYlQBtJO22WJgj8x
+fF3xxJIdTtJYmVdal5uPGYIe1noxun9BBy/lZNFkPoWIWUwdaxeAm/7yOhibMTRh4WJfpA
+wQ2eLJ5pXrKxzKgIbEUK+kCvr+o/6kTKc9eRTMNNEk1bU7kKipzEPKULajJWgtmfTccX86
+VHXISdU6uFAAAAgQDzWgea+Yrkc0rsSx8H/Cma34XcEU0Oz2IF6GwjIRgI+Cd0an0nUfr8
+bsG5NOgQgWvnc1MJFgNoBgJOmTXuR/fz8Z/sEDVCGPiX6EMfDj1a/5S5BswB9D6YN8LOjr
+LLaJufCHe+hTbdRO/Lq8Xk+1cb6twI7+vEJ2VPJXzjpgQ/tQAAAIEAzFqg8q7d+wpw0tkQ
+2isTRs6uEsvjjSpGzNlOi4kUmsFYjjZzeitQHv5F9o8Sbxb6ujWDVVE84KDVN0CG9efT64
+eQvgWJF2BOSQxrxPCj7cdyNTkAPkNnqPPs4kLlqBXtOxKXa6ZK0+l2iiwb9ZqsGPooVdss
+SARQxkz+8eTmyK8AAAAmbWFnbmV0LXRveUBBa2lzLU1hY0Jvb2stUHJvLTIwMTgubG9jYW
+wBAgMEBQ==
+-----END OPENSSH PRIVATE KEY-----`
 
-	checkdata := `{"kty":"EC","kid":"aaaa","crv":"P-384","x":"k8ZCsU7nxEEAsyDCh7cQAYvx0cuF5UJEFGhLjVQ9mfGhKtbiOvWVaOAVTqRBIvEI","y":"xa-aJp2gsCCvuXnQsKhFkj7VrR2jr7Oesf-CEw7md9Bxl1aLzNwUyLRzVXHM9h6_","d":"FKNAqORUoNKQ-fd4igTar8WdY8s1tkDhyFUPFZU36_HGbWKuuFwmobK2aVGZyfq3"}`
+	checkdata := `{"kty":"RSA","kid":"aaaa","n":"wkHktSFsqd3874srhzpUKCXojuYjtC4FaTs1en8SWiSZ9W1189LHwtTbCOUDXzxtlugYaPHQZtJcFQhV7UkZKKdgAnR_wB4llyRcoZZ0BIRuBfarc1sjz9IqlKPcR6WL7EKRTC544IjNJLkjK2VjJy2_PSAQuXFp5PAXJOkVg-jE6tuICp2bzVzTsrDDZvys7j6apIcBbBEVPBZnnueLZgcQhTGhYsulfEyrjPwUZqAg15MCdc4VGBYBonMV8Fjcp6bN1XumI8Tkse3BiQ0XGH56VbRDEdOQwMs9Aygpx4gzA--_bdnIER5DhPjUCTFTgEPE3NzMUx_BhrlFP0r0uw","e":"AQAB","d":"O_RgZTMKuabFAR2_8n2jKb0BeNE45cxqaR8YE1WS0XWIewIsrHM6qjxN2gHst4EMBc5eck1n18RHHUq0UocEF9MIw9k28JGdYnebi1fHOPmyh26pXfIcLHEeKUAlpYtHk0S8WXniXtJ6FkJ5w1QIdTgeVPxHjSSe3UTor8Csnkg4CJFVS-gg0qbRlGXcn3NPhNWGTQCyUMwy8FbMz-O7yzjnpbIWCLxSYAIXf-NYDQob4c3hCIjlN3Jke_8XfelF3wghYnVHazt3Zfo4IAQDKouuFbjE4Jepf0jATS-gwAjnZQCjsJVFgvXnikuT8-OhGKNJmmRSNhfcP2byygXtCQ","p":"81oHmvmK5HNK7EsfB_wpmt-F3BFNDs9iBehsIyEYCPgndGp9J1H6_G7BuTToEIFr53NTCRYDaAYCTpk17kf38_Gf7BA1Qhj4l-hDHw49Wv-UuQbMAfQ-mDfCzo6yy2ibnwh3voU23UTvy6vF5PtXG-rcCO_rxCdlTyV846YEP7U","q":"zFqg8q7d-wpw0tkQ2isTRs6uEsvjjSpGzNlOi4kUmsFYjjZzeitQHv5F9o8Sbxb6ujWDVVE84KDVN0CG9efT64eQvgWJF2BOSQxrxPCj7cdyNTkAPkNnqPPs4kLlqBXtOxKXa6ZK0-l2iiwb9ZqsGPooVdssSARQxkz-8eTmyK8","dp":"3o7K_9gTR6WNsxds9N-QqVydzstf3xiZPG_5XhNpKOLTKqwtc-WNFoqwz5JsXpQOvGmDWn7wdJVyTLHgWeEmCstDiCC2pJGz4TIBGQjr4ip2uNVXhL389TeiCUkGifNMyCB1ax_oMmtWp72cSjP30cd0nxPVWtrw03akhoqRvjU","dq":"ARHMW9jMcp7oXkIik3G8RReZ06FbjIaXHkVY4uQRxomShBQG4LHPVoowJY00JH6zSzwydsTZE7fjxclBq5HOCyKHgGcZA5VOc5VsDvjPctQjZeHpfWnu5fR43epJt2p99lwvjLGvHJLROwHmF4_6rJrKkUB3Z90V6yPGBdAT4SM","qi":"E-K25JiVAG0k7bZYmCPzF8XfHEkh1O0liZV1qXm48Zgh7WejG6f0EHL-Vk0WQ-hYhZTB1rF4Cb_vI6GJsxNGHhYl-kDBDZ4snmlesrHMqAhsRQr6QK-v6j_qRMpz15FMw00STVtTuQqKnMQ8pQtqMlaC2Z9NxxfzpUdchJ1Tq4U"}`
 
 	encryptkey := &entity.EncryptKey{}
 	err := DecodePrivateKey([]byte(privatekey), encryptkey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	jwkbyte, err := GenerateJSONWebKeyWithEcdsaPrivateKey(encryptkey.EcdsaKey.PrivateKey, "aaaa")
+	jwkbyte, err := GenerateJSONWebKeyWithRSAPrivateKey(encryptkey.RsaKey.PrivateKey, "aaaa")
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
 	t.Log(string(jwkbyte))
 	if reflect.DeepEqual(jwkbyte, []byte(checkdata)) == false {
-		t.Fatalf("failed compare ConvertPublicKeyJWKOpenSSHPrivateKey")
+		t.Fatalf("failed compare ConvertPublicKeyJWKOpenSSHPrivateKeyRsa")
 	}
 	kid := GenerateHashFromCrptoKey(privatekey)
 	t.Log(kid)
-	t.Log("success ConvertPublicKeyJWKOpenSSHPrivateKey")
+	t.Log("success ConvertPublicKeyJWKOpenSSHPrivateKeyRsa")
+
+}
+
+func Test_ConvertPublicKeyJWKOpenSSHPrivateKeyEd25519(t *testing.T) {
+
+	privatekey := `-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACClePg97D48xweyytMCPUG8KFazRmB8w+XzQBFVKVR9dwAAALAwOv11MDr9
+dQAAAAtzc2gtZWQyNTUxOQAAACClePg97D48xweyytMCPUG8KFazRmB8w+XzQBFVKVR9dw
+AAAECk6ITP48WGnP70CI29DcrLkocyYU3sIX3gvPh3ReFBqKV4+D3sPjzHB7LK0wI9Qbwo
+VrNGYHzD5fNAEVUpVH13AAAAJm1hZ25ldC10b3lAQWtpcy1NYWNCb29rLVByby0yMDE4Lm
+xvY2FsAQIDBAUGBw==
+-----END OPENSSH PRIVATE KEY-----`
+
+	//	checkdata := `{"kty":"EC","kid":"aaaa","crv":"P-384","x":"k8ZCsU7nxEEAsyDCh7cQAYvx0cuF5UJEFGhLjVQ9mfGhKtbiOvWVaOAVTqRBIvEI","y":"xa-aJp2gsCCvuXnQsKhFkj7VrR2jr7Oesf-CEw7md9Bxl1aLzNwUyLRzVXHM9h6_","d":"FKNAqORUoNKQ-fd4igTar8WdY8s1tkDhyFUPFZU36_HGbWKuuFwmobK2aVGZyfq3"}`
+
+	encryptkey := &entity.EncryptKey{}
+	err := DecodePrivateKey([]byte(privatekey), encryptkey)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	t.Log(string(encryptkey.Keytype))
+	pembytes, err := EncodePrivateKey(encryptkey)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
+	t.Log(string(pembytes))
+	t.Log("success ConvertPublicKeyJWKOpenSSHPrivateKeyEd25519")
 
 }
 

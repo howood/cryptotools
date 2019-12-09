@@ -603,7 +603,7 @@ X8nPWQLBmBYWmcljPjFO3AvHEe7etnb3EA==
 	}
 	kid := GenerateHashFromCrptoKey(privatekey)
 	t.Log(kid)
-	pemprikey, err := EncodeEcdsaPrivateKey(encryptkey.EcdsaKey.PrivateKey)
+	pemprikey, err := EncodePrivateKey(encryptkey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -685,7 +685,7 @@ xvY2FsAQIDBAUGBw==
 		t.Fatalf("failed test %#v", err)
 	}
 	t.Log(string(encryptkey.Keytype))
-	pembytes, err := EncodeEd25519PrivateKey(encryptkey.Ed25519Key.PrivateKey)
+	pembytes, err := EncodePrivateKey(encryptkey)
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}

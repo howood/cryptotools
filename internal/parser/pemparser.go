@@ -177,7 +177,7 @@ func EncodeEd25519PrivateKey(prikey *ed25519.PrivateKey) ([]byte, error) {
 	return pemdata, nil
 }
 
-// EncodePrivateKey encode private key to bytes
+// EncodePublicKey encode public key to bytes
 func EncodePublicKey(encryptkey *entity.EncryptKey) ([]byte, error) {
 	switch encryptkey.Keytype {
 	case entity.EncryptTypeRSA:

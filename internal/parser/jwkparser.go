@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/howood/cryptotools/internal/entity"
 	jose "gopkg.in/square/go-jose.v2"
 )
 
@@ -17,6 +18,27 @@ func ConvertToJSONWebKey(input []byte) (jose.JSONWebKey, error) {
 	var jwk jose.JSONWebKey
 	err := jwk.UnmarshalJSON(input)
 	return jwk, err
+}
+
+// GenerateJSONWebKeyWithEncryptPrivateKey convert  privatekey to JWK
+func GenerateJSONWebKeyWithEncryptPrivateKey(encryptkey *entity.EncryptKey, kid string) ([]byte, error) {
+	switch encryptkey.Keytype {
+	case entity.EncryptTypeRSA:
+		return GenerateJSONWebKeyWithRSAPrivateKey(encryptkey.RsaKey.PrivateKey, kid)
+	case entity.EncryptTypeECDSA:
+		return GenerateJSONWebKeyWithEcdsaPrivateKey(encryptkey.EcdsaKey.PrivateKey, kid)
+	default:
+		return nil, errors.New("No encryptkey KeyType")
+	}
+}
+
+// GenerateJSONWebKeyWithRSAPrivateKey convert rsa privatekey to JWK
+func GenerateJSONWebKeyWithRSAPrivateKey(privatekey *rsa.PrivateKey, kid string) ([]byte, error) {
+	jwk := jose.JSONWebKey{
+		KeyID: kid,
+		Key:   privatekey,
+	}
+	return jwk.MarshalJSON()
 }
 
 // GenerateJSONWebKeyWithEcdsaPrivateKey convert ecdsa privatekey to JWK
@@ -28,13 +50,16 @@ func GenerateJSONWebKeyWithEcdsaPrivateKey(privatekey *ecdsa.PrivateKey, kid str
 	return jwk.MarshalJSON()
 }
 
-// GenerateJSONWebKeyWithRSAPrivateKey convert rsa privatekey to JWK
-func GenerateJSONWebKeyWithRSAPrivateKey(privatekey *rsa.PrivateKey, kid string) ([]byte, error) {
-	jwk := jose.JSONWebKey{
-		KeyID: kid,
-		Key:   privatekey,
+// GenerateJSONWebKeyWithEncryptPublicKey convert  publickey to JWK
+func GenerateJSONWebKeyWithEncryptPublicKey(encryptkey *entity.EncryptKey, kid string) ([]byte, error) {
+	switch encryptkey.Keytype {
+	case entity.EncryptTypeRSA:
+		return GenerateJSONWebKeyWithRSAPublicKey(encryptkey.RsaKey.PublicKey, kid)
+	case entity.EncryptTypeECDSA:
+		return GenerateJSONWebKeyWithEcdsaPublicKey(encryptkey.EcdsaKey.PublicKey, kid)
+	default:
+		return nil, errors.New("No encryptkey KeyType")
 	}
-	return jwk.MarshalJSON()
 }
 
 // GenerateJSONWebKeyWithRSAPublicKey convert rsa publickey to JWK

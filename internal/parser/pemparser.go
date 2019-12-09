@@ -2,11 +2,13 @@ package parser
 
 import (
 	"crypto/ecdsa"
+	"crypto/ed25519"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"unsafe"
 
 	"github.com/ScaleFT/sshkeys"
 
@@ -14,14 +16,14 @@ import (
 )
 
 const (
-	blockTypeRsaPrivateKey   = "RSA PRIVATE KEY"
-	blockTypeEcdsaPrivateKey = "EC PRIVATE KEY"
-	blockTypeOpenPrivateKey  = "OPEN PRIVATE KEY"
-	blockTypePrivateKey      = "PRIVATE KEY"
-	blockTypeRsaPublicKey    = "RSA PUBLIC KEY"
-	blockTypeEcdsaPublicKey  = "EC PUBLIC KEY"
-	blockTypeOpenPublicKey   = "OPEN PUBLIC KEY"
-	blockTypePublicKey       = "PUBLIC KEY"
+	blockTypeRsaPrivateKey     = "RSA PRIVATE KEY"
+	blockTypeEcdsaPrivateKey   = "EC PRIVATE KEY"
+	blockTypeOpenSSHPrivateKey = "OPENSSH PRIVATE KEY"
+	blockTypePrivateKey        = "PRIVATE KEY"
+	blockTypeRsaPublicKey      = "RSA PUBLIC KEY"
+	blockTypeEcdsaPublicKey    = "EC PUBLIC KEY"
+	blockTypeOpenSSHPublicKey  = "OPENSSH PUBLIC KEY"
+	blockTypePublicKey         = "PUBLIC KEY"
 )
 
 // DecodePrivateKey reads private to entity struct
@@ -46,8 +48,8 @@ func DecodePrivateKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 			return err
 		}
 		encryptkey.Keytype = entity.EncryptTypeECDSA
-	case blockTypeOpenPrivateKey:
-		keyInterface, err := sshkeys.ParseEncryptedRawPrivateKey(block.Bytes, nil)
+	case blockTypeOpenSSHPrivateKey:
+		keyInterface, err := sshkeys.ParseEncryptedRawPrivateKey(bytedata, nil)
 		if err != nil {
 			return err
 		}
@@ -90,7 +92,7 @@ func DecodePublicKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 			return err
 		}
 	/*
-		case blockTypeOpenPublicKey:
+		case blockTypeOpenSSHPublicKey:
 			keyInterface, err := sshkeys.ParseEncryptedRawPrivateKey(block.Bytes, nil)
 			if err != nil {
 				return err
@@ -155,6 +157,22 @@ func EncodeEcdsaPrivateKey(prikey *ecdsa.PrivateKey) ([]byte, error) {
 	return pemdata, nil
 }
 
+// EncodeEd25519PrivateKey decodes ED25519 private key to bytes
+func EncodeEd25519PrivateKey(prikey *ed25519.PrivateKey) ([]byte, error) {
+	vec := *(*ed25519.PrivateKey)(unsafe.Pointer(prikey))
+	prikeybytes, err := x509.MarshalPKCS8PrivateKey(vec)
+	if err != nil {
+		return nil, err
+	}
+	pemdata := pem.EncodeToMemory(
+		&pem.Block{
+			Type:  blockTypeOpenSSHPrivateKey,
+			Bytes: prikeybytes,
+		},
+	)
+	return pemdata, nil
+}
+
 // EncodeRsaPublicKey decodes public key to bytes
 func EncodeRsaPublicKey(pubkey *rsa.PublicKey) ([]byte, error) {
 	prikeybytes, err := x509.MarshalPKIXPublicKey(pubkey)
@@ -187,6 +205,10 @@ func EncodeEcdsaPublicKey(pubkey *ecdsa.PublicKey) ([]byte, error) {
 
 func castPrivateKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.EncryptKey) error {
 	switch priv := keyInterface.(type) {
+	case *ed25519.PrivateKey:
+		encryptkey.Ed25519Key.PrivateKey = priv
+		encryptkey.Keytype = entity.EncryptTypeED25519
+		return nil
 	case *ecdsa.PrivateKey:
 		encryptkey.EcdsaKey.PrivateKey = priv
 		encryptkey.Keytype = entity.EncryptTypeECDSA
@@ -196,13 +218,30 @@ func castPrivateKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.Enc
 		encryptkey.RsaKey.PrivateKey = priv
 		encryptkey.Keytype = entity.EncryptTypeRSA
 		return nil
+	case ed25519.PrivateKey:
+		encryptkey.Ed25519Key.PrivateKey = &priv
+		encryptkey.Keytype = entity.EncryptTypeED25519
+		return nil
+	case ecdsa.PrivateKey:
+		encryptkey.EcdsaKey.PrivateKey = &priv
+		encryptkey.Keytype = entity.EncryptTypeECDSA
+		return nil
+	case rsa.PrivateKey:
+		priv.Precompute()
+		encryptkey.RsaKey.PrivateKey = &priv
+		encryptkey.Keytype = entity.EncryptTypeRSA
+		return nil
 	default:
-		return errors.New("not RSA / ECDSA private key")
+		return errors.New("not RSA / ECDSA / ED25519 private key")
 	}
 }
 
 func castPublicKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.EncryptKey) error {
 	switch priv := keyInterface.(type) {
+	case *ed25519.PublicKey:
+		encryptkey.Ed25519Key.PublicKey = priv
+		encryptkey.Keytype = entity.EncryptTypeED25519
+		return nil
 	case *ecdsa.PublicKey:
 		encryptkey.EcdsaKey.PublicKey = priv
 		encryptkey.Keytype = entity.EncryptTypeECDSA
@@ -211,7 +250,19 @@ func castPublicKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.Encr
 		encryptkey.RsaKey.PublicKey = priv
 		encryptkey.Keytype = entity.EncryptTypeRSA
 		return nil
+	case ed25519.PublicKey:
+		encryptkey.Ed25519Key.PublicKey = &priv
+		encryptkey.Keytype = entity.EncryptTypeED25519
+		return nil
+	case ecdsa.PublicKey:
+		encryptkey.EcdsaKey.PublicKey = &priv
+		encryptkey.Keytype = entity.EncryptTypeECDSA
+		return nil
+	case rsa.PublicKey:
+		encryptkey.RsaKey.PublicKey = &priv
+		encryptkey.Keytype = entity.EncryptTypeRSA
+		return nil
 	default:
-		return errors.New("not RSA / ECDSA private key")
+		return errors.New("not RSA / ECDSA / ED25519 public key")
 	}
 }

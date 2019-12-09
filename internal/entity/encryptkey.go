@@ -8,6 +8,8 @@ const (
 	EncryptTypeRSA EncryptKeyType = "rsa"
 	// EncryptTypeECDSA is ECDSASA KeyType
 	EncryptTypeECDSA EncryptKeyType = "ecdsa"
+	// EncryptTypeED25519 is ED25519 KeyType
+	EncryptTypeED25519 EncryptKeyType = "ed25519"
 )
 
 // EncryptKey represents private & public key

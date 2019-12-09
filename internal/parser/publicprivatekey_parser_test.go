@@ -525,7 +525,7 @@ WQ44XaHY6P62IhxyDR0nGBHLy1PwxWZKDsFK6BwpJ3VX6bb1ZkbhDMr26gCp
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	jwk, err := GenerateJSONWebKeyWithRSAPrivateKey(encryptkey.RsaKey.PrivateKey, "aaaa")
+	jwk, err := GenerateJSONWebKeyWithEncryptPrivateKey(encryptkey, "aaaa")
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -563,7 +563,7 @@ Sflwh6m3w5TyQziTOp9O468CAwEAAQ==
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	jwk, err := GenerateJSONWebKeyWithRSAPublicKey(encryptkey.RsaKey.PublicKey, "aaaa")
+	jwk, err := GenerateJSONWebKeyWithEncryptPublicKey(encryptkey, "aaaa")
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -593,7 +593,7 @@ X8nPWQLBmBYWmcljPjFO3AvHEe7etnb3EA==
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	jwkbyte, err := GenerateJSONWebKeyWithEcdsaPrivateKey(encryptkey.EcdsaKey.PrivateKey, "aaaa")
+	jwkbyte, err := GenerateJSONWebKeyWithEncryptPrivateKey(encryptkey, "aaaa")
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -652,7 +652,7 @@ wBAgMEBQ==
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	jwkbyte, err := GenerateJSONWebKeyWithRSAPrivateKey(encryptkey.RsaKey.PrivateKey, "aaaa")
+	jwkbyte, err := GenerateJSONWebKeyWithEncryptPrivateKey(encryptkey, "aaaa")
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
@@ -709,7 +709,7 @@ PgYfnSPOLUerb63NsPCLGIODX8nPWQLBmBYWmcljPjFO3AvHEe7etnb3EA==
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	jwkbyte, err := GenerateJSONWebKeyWithEcdsaPublicKey(encryptkey.EcdsaKey.PublicKey, "aaaa")
+	jwkbyte, err := GenerateJSONWebKeyWithEncryptPublicKey(encryptkey, "aaaa")
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}

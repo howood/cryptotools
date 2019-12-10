@@ -105,7 +105,7 @@ func DecodePublicKey(bytedata []byte, encryptkey *entity.EncryptKey) error {
 	return nil
 }
 
-// DecodePublicKey decodes authorizedkey to entity struct
+// DecodeAuthorizedKey decodes authorizedkey to entity struct
 func DecodeAuthorizedKey(input []byte, encryptkey *entity.EncryptKey) error {
 	pkey, _, _, _, err := ssh.ParseAuthorizedKey(input)
 	if err != nil {

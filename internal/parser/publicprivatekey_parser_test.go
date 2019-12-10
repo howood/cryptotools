@@ -331,6 +331,54 @@ Jo7JPk6tQ==
 -----END RSA PUBLIC KEY-----`,
 		ResultHasErr: true,
 	},
+	"publickey7": {
+		Data: `-----BEGIN PUBLIC KEY-----
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwkHktSFsqd3874srhzpU
+KCXojuYjtC4FaTs1en8SWiSZ9W1189LHwtTbCOUDXzxtlugYaPHQZtJcFQhV7UkZ
+KKdgAnR/wB4llyRcoZZ0BIRuBfarc1sjz9IqlKPcR6WL7EKRTC544IjNJLkjK2Vj
+Jy2/PSAQuXFp5PAXJOkVg+jE6tuICp2bzVzTsrDDZvys7j6apIcBbBEVPBZnnueL
+ZgcQhTGhYsulfEyrjPwUZqAg15MCdc4VGBYBonMV8Fjcp6bN1XumI8Tkse3BiQ0X
+GH56VbRDEdOQwMs9Aygpx4gzA++/bdnIER5DhPjUCTFTgEPE3NzMUx/BhrlFP0r0
+uwIDAQAB
+-----END PUBLIC KEY-----`,
+		ResultHasErr: false,
+	},
+	"publickey8": {
+		Data: `-----BEGIN RSA PUBLIC KEY-----
+MIGJAoGBAJNrHWRFgWLqgzSmLBq2G89exgi/Jk1NWhbFB9gHc9MLORmP3BOCJS9k
+onzT/+Dk1hdZf00JGgZeuJGoXK9PX3CIKQKRQRHpi5e1vmOCrmHN5VMOxGO4d+zn
+JDEbNHODZR4HzsSdpQ9SGMSx7raJJedEIbr0IP6DgnWgiA7R1mUdAgMBAAE=
+-----END RSA PUBLIC KEY-----`,
+		ResultHasErr: false,
+	},
+	"publickey9": {
+		Data: `-----BEGIN EC PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEcqBi9FlkczJx7VtoR6nFN3DSiAun
+p1qBuMVtpMSP10/DAmOY3NMl7azJzPLw16a1za5B3tOc9mYfjw1UWR+btA==
+-----END EC PUBLIC KEY-----`,
+		ResultHasErr: false,
+	},
+	"publickey10": {
+		Data: `-----BEGIN OPENSSH PUBLIC KEY-----
+MCowBQYDK2VwAyEAjkENdL5ygqGDmUQdt3AndO/inPmYpn/tmr2MS6pu4rY=
+-----END OPENSSH PUBLIC KEY-----`,
+		ResultHasErr: false,
+	},
+}
+
+var authorizedKeyData = map[string]keyTestData{
+	"rsakey": {
+		Data:         `ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDCQeS1IWyp3fzviyuHOlQoJeiO5iO0LgVpOzV6fxJaJJn1bXXz0sfC1NsI5QNfPG2W6Bho8dBm0lwVCFXtSRkop2ACdH/AHiWXJFyhlnQEhG4F9qtzWyPP0iqUo9xHpYvsQpFMLnjgiM0kuSMrZWMnLb89IBC5cWnk8Bck6RWD6MTq24gKnZvNXNOysMNm/KzuPpqkhwFsERU8Fmee54tmBxCFMaFiy6V8TKuM/BRmoCDXkwJ1zhUYFgGicxXwWNynps3Ve6YjxOSx7cGJDRcYfnpVtEMR05DAyz0DKCnHiDMD779t2cgRHkOE+NQJMVOAQ8Tc3MxTH8GGuUU/SvS7`,
+		ResultHasErr: false,
+	},
+	"ecdsakey": {
+		Data:         `ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBHKgYvRZZHMyce1baEepxTdw0ogLp6dagbjFbaTEj9dPwwJjmNzTJe2syczy8Nemtc2uQd7TnPZmH48NVFkfm7Q= xxxxx@xxxxxxx.local`,
+		ResultHasErr: false,
+	},
+	"ed25519": {
+		Data:         `ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII5BDXS+coKhg5lEHbdwJ3Tv4pz5mKZ/7Zq9jEuqbuK2`,
+		ResultHasErr: false,
+	},
 }
 
 func Test_ConvertPublicKey(t *testing.T) {
@@ -387,6 +435,13 @@ func Test_ReadPrivatePublicKey(t *testing.T) {
 		} else {
 			t.Logf("failed test :%s %#v", k, err)
 		}
+		data, err := EncodePrivateKey(encryptkey)
+		if (err != nil) != v.ResultHasErr {
+			t.Fatalf("failed test :%s %#v", k, err)
+		} else {
+			t.Logf("failed test :%s %#v", k, err)
+		}
+		t.Logf(string(data))
 		t.Logf("success : %s", k)
 
 	}
@@ -398,8 +453,14 @@ func Test_ReadPrivatePublicKey(t *testing.T) {
 		} else {
 			t.Logf("failed test :%s %#v", k, err)
 		}
+		data, err := EncodePublicKey(encryptkey)
+		if (err != nil) != v.ResultHasErr {
+			t.Fatalf("failed test :%s %#v", k, err)
+		} else {
+			t.Logf("failed test :%s %#v", k, err)
+		}
+		t.Logf(string(data))
 		t.Logf("success : %s", k)
-
 	}
 }
 
@@ -439,7 +500,10 @@ func Test_ConvertPrivatecKey(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}
-	pemprikeyagain1 := EncodeRsaPrivateKeyPKCS1(encryptkey.RsaKey.PrivateKey)
+	pemprikeyagain1, err := EncodePrivateKey(encryptkey)
+	if err != nil {
+		t.Fatalf("failed test %#v", err)
+	}
 	if reflect.DeepEqual(pemprikeyagain1, pemprikey1) == false {
 		t.Fatalf("failed compare privatekey PKCS#1")
 	}
@@ -738,4 +802,24 @@ PgYfnSPOLUerb63NsPCLGIODX8nPWQLBmBYWmcljPjFO3AvHEe7etnb3EA==
 	}
 	t.Log("success ConvertPublicKeyJWKEcdsaPublicKey")
 
+}
+
+func Test_ConvertAuthorizedKeyToPEM(t *testing.T) {
+	for k, v := range authorizedKeyData {
+		encryptkey := &entity.EncryptKey{}
+		err := DecodeAuthorizedKey([]byte(v.Data), encryptkey)
+		if (err != nil) != v.ResultHasErr {
+			t.Fatalf("failed test :%s %#v", k, err)
+		} else {
+			t.Logf("failed test :%s %#v", k, err)
+		}
+		data, err := EncodePublicKey(encryptkey)
+		if (err != nil) != v.ResultHasErr {
+			t.Fatalf("failed test :%s %#v", k, err)
+		} else {
+			t.Logf("failed test :%s %#v", k, err)
+		}
+		t.Logf(string(data))
+		t.Logf("success : %s", k)
+	}
 }

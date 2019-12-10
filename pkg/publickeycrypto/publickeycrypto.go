@@ -2,7 +2,6 @@ package publickeycrypto
 
 import (
 	"errors"
-	"log"
 
 	"github.com/howood/cryptotools/internal/encrypter"
 	"github.com/howood/cryptotools/internal/entity"
@@ -35,9 +34,7 @@ type PublicKeyCrypto struct {
 // NewPublicKeyCrypto create PublicKeyCrypto struct
 func NewPublicKeyCrypto(bits int, encryptType EncryptKeyType) (*PublicKeyCrypto, error) {
 	encryptkey, err := generateEncryptKey(bits, encryptType)
-	log.Print(encryptType)
 	if err != nil {
-		log.Print("33333333")
 		return nil, err
 	}
 	var encrypterRsa *encrypter.CryptoRsa

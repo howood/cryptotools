@@ -461,7 +461,6 @@ func Test_ReadPrivatePublicKey(t *testing.T) {
 		}
 		t.Logf(string(data))
 		t.Logf("success : %s", k)
-
 	}
 }
 
@@ -807,14 +806,20 @@ PgYfnSPOLUerb63NsPCLGIODX8nPWQLBmBYWmcljPjFO3AvHEe7etnb3EA==
 
 func Test_ConvertAuthorizedKeyToPEM(t *testing.T) {
 	for k, v := range authorizedKeyData {
-		pemdata, err := ConvertAuthorizedKeyToPEM([]byte(v.Data))
+		encryptkey := &entity.EncryptKey{}
+		err := DecodeAuthorizedKey([]byte(v.Data), encryptkey)
 		if (err != nil) != v.ResultHasErr {
 			t.Fatalf("failed test :%s %#v", k, err)
 		} else {
 			t.Logf("failed test :%s %#v", k, err)
 		}
-		t.Logf(string(pemdata))
+		data, err := EncodePublicKey(encryptkey)
+		if (err != nil) != v.ResultHasErr {
+			t.Fatalf("failed test :%s %#v", k, err)
+		} else {
+			t.Logf("failed test :%s %#v", k, err)
+		}
+		t.Logf(string(data))
 		t.Logf("success : %s", k)
-
 	}
 }

@@ -28,5 +28,5 @@ func Test_EcdsaKeyGenerator(t *testing.T) {
 	} else {
 		t.Logf("failed test %#v", err)
 	}
-	t.Log("success CryptoEcdsa")
+	t.Log("success EcdsaKeyGenerator")
 }

@@ -34,11 +34,11 @@ func NewPublicKeyCrypto(bits int, encryptType publickeycrypto.EncryptKeyType) (*
 }
 
 // NewPublicKeyCryptoWithPEMPublicKey create PublicKeyCrypto with PEM PublicKey
-func NewPublicKeyCryptoWithPEMPublicKey(publickey []byte) (*publickeycrypto.PublicKeyCrypto, error) {
-	return publickeycrypto.NewPublicKeyCryptoWithPEMPublicKey(publickey, publickeycrypto.EncryptTypeRSA)
+func NewPublicKeyCryptoWithPEMPublicKey(publickey []byte, encryptType publickeycrypto.EncryptKeyType) (*publickeycrypto.PublicKeyCrypto, error) {
+	return publickeycrypto.NewPublicKeyCryptoWithPEMPublicKey(publickey, encryptType)
 }
 
 // NewPublicKeyCryptoWithJWKPublicKey create PublicKeyCrypto with JWK PublicKey
-func NewPublicKeyCryptoWithJWKPublicKey(publickey []byte) (*publickeycrypto.PublicKeyCrypto, error) {
-	return publickeycrypto.NewPublicKeyCryptoWithJWKPublicKey(publickey, publickeycrypto.EncryptTypeRSA)
+func NewPublicKeyCryptoWithJWKPublicKey(publickey []byte, encryptType publickeycrypto.EncryptKeyType) (*publickeycrypto.PublicKeyCrypto, error) {
+	return publickeycrypto.NewPublicKeyCryptoWithJWKPublicKey(publickey, encryptType)
 }

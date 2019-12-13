@@ -22,5 +22,5 @@ func Test_RsaKeyGenerator(t *testing.T) {
 	} else {
 		t.Logf("failed test %#v", err)
 	}
-	t.Log("success CryptoRsa")
+	t.Log("success RsaKeyGenerator")
 }

@@ -6,7 +6,7 @@ import (
 )
 
 const defaultRSABits = 2048
-const defaultECDSABits = 521
+const defaultECDSABits = 256
 
 const (
 	// EncryptTypeRSA is RSA KeyType

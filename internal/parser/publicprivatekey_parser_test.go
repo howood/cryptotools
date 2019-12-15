@@ -732,32 +732,92 @@ wBAgMEBQ==
 
 func Test_ConvertPublicKeyJWKOpenSSHPrivateKeyEd25519(t *testing.T) {
 
-	privatekey := `-----BEGIN OPENSSH PRIVATE KEY-----
+	privatekeys := map[string]keyTestData{
+		"privatekey1": {
+			Data: `-----BEGIN OPENSSH PRIVATE KEY-----
 b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
 QyNTUxOQAAACClePg97D48xweyytMCPUG8KFazRmB8w+XzQBFVKVR9dwAAALAwOv11MDr9
 dQAAAAtzc2gtZWQyNTUxOQAAACClePg97D48xweyytMCPUG8KFazRmB8w+XzQBFVKVR9dw
 AAAECk6ITP48WGnP70CI29DcrLkocyYU3sIX3gvPh3ReFBqKV4+D3sPjzHB7LK0wI9Qbwo
 VrNGYHzD5fNAEVUpVH13AAAAJm1hZ25ldC10b3lAQWtpcy1NYWNCb29rLVByby0yMDE4Lm
 xvY2FsAQIDBAUGBw==
------END OPENSSH PRIVATE KEY-----`
+-----END OPENSSH PRIVATE KEY-----`,
+		},
+		"privatekey2": {
+			Data: `-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtz
+c2gtZWQyNTUxOQAAACBEVz/VSKL40YAtSHDJKRx+R3xeIkAlNGGTgQCPFPAN3AAA
+AIiaywRCmssEQgAAAAtzc2gtZWQyNTUxOQAAACBEVz/VSKL40YAtSHDJKRx+R3xe
+IkAlNGGTgQCPFPAN3AAAAECsfAg59NRaGliXJ1fOP5NjZOiz42ZIkOFcz+8Yn3mb
+hURXP9VIovjRgC1IcMkpHH5HfF4iQCU0YZOBAI8U8A3cAAAAAAECAwQF
+-----END OPENSSH PRIVATE KEY-----`,
+		},
+		"privatekey3": {
+			Data: `-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACDpilU08Cd17YW9FDsnRfikUioFL0nzup/LQLosDfz5jAAAAJhFvi5PRb4u
+TwAAAAtzc2gtZWQyNTUxOQAAACDpilU08Cd17YW9FDsnRfikUioFL0nzup/LQLosDfz5jA
+AAAED4IZj8rgx9Y39KEtXZFfR7X7eHtaERrEsrvYzO16LzTumKVTTwJ3Xthb0UOydF+KRS
+KgUvSfO6n8tAuiwN/PmMAAAAFG1hZ25ldC50b3lAZ21haWwuY29tAQ==
+-----END OPENSSH PRIVATE KEY-----`,
+		},
+	}
 
 	//	checkdata := `{"kty":"EC","kid":"aaaa","crv":"P-384","x":"k8ZCsU7nxEEAsyDCh7cQAYvx0cuF5UJEFGhLjVQ9mfGhKtbiOvWVaOAVTqRBIvEI","y":"xa-aJp2gsCCvuXnQsKhFkj7VrR2jr7Oesf-CEw7md9Bxl1aLzNwUyLRzVXHM9h6_","d":"FKNAqORUoNKQ-fd4igTar8WdY8s1tkDhyFUPFZU36_HGbWKuuFwmobK2aVGZyfq3"}`
+	for k, v := range privatekeys {
+		encryptkey := &entity.EncryptKey{}
+		err := DecodePrivateKey([]byte(v.Data), encryptkey)
+		if err != nil {
+			t.Fatalf("failed test %s: %#v", k, err)
+		}
+		t.Log(string(encryptkey.Keytype))
+		pembytes, err := EncodePrivateKey(encryptkey)
+		if err != nil {
+			t.Fatalf("failed test %s: %#v", k, err)
+		}
+		t.Log(string(pembytes))
 
-	encryptkey := &entity.EncryptKey{}
-	err := DecodePrivateKey([]byte(privatekey), encryptkey)
-	if err != nil {
-		t.Fatalf("failed test %#v", err)
 	}
-	t.Log(string(encryptkey.Keytype))
-	pembytes, err := EncodePrivateKey(encryptkey)
-	if err != nil {
-		t.Fatalf("failed test %#v", err)
-	}
-	t.Log(string(pembytes))
 	t.Log("success ConvertPublicKeyJWKOpenSSHPrivateKeyEd25519")
-
 }
 
+func Test_ConvertPublicKeyJWKOpenSSHPublicKeyEd25519(t *testing.T) {
+
+	publickeys := map[string]keyTestData{
+		"publickey1": {
+			Data: `-----BEGIN OPENSSH PUBLIC KEY-----
+MCowBQYDK2VwAyEAZdeBbgw4Ir+fge/9gJK43z4w/xalnWU7XqQZCIZtbTU=
+-----END OPENSSH PUBLIC KEY-----`,
+		},
+		"publickey2": {
+			Data: `-----BEGIN OPENSSH PUBLIC KEY-----
+MCowBQYDK2VwAyEA+6uTGl6hce+ilAsSsHsY2U1w0kCPswOuS8zjEsA2F0g=
+-----END OPENSSH PUBLIC KEY-----`,
+		},
+		"publickey3": {
+			Data: `-----BEGIN OPENSSH PUBLIC KEY-----
+MCowBQYDK2VwAyEAjkENdL5ygqGDmUQdt3AndO/inPmYpn/tmr2MS6pu4rY=
+-----END OPENSSH PUBLIC KEY-----`,
+		},
+	}
+
+	//	checkdata := `{"kty":"EC","kid":"aaaa","crv":"P-384","x":"k8ZCsU7nxEEAsyDCh7cQAYvx0cuF5UJEFGhLjVQ9mfGhKtbiOvWVaOAVTqRBIvEI","y":"xa-aJp2gsCCvuXnQsKhFkj7VrR2jr7Oesf-CEw7md9Bxl1aLzNwUyLRzVXHM9h6_","d":"FKNAqORUoNKQ-fd4igTar8WdY8s1tkDhyFUPFZU36_HGbWKuuFwmobK2aVGZyfq3"}`
+	for k, v := range publickeys {
+		encryptkey := &entity.EncryptKey{}
+		err := DecodePublicKey([]byte(v.Data), encryptkey)
+		if err != nil {
+			t.Fatalf("failed test %s: %#v", k, err)
+		}
+		t.Log(string(encryptkey.Keytype))
+		pembytes, err := EncodePublicKey(encryptkey)
+		if err != nil {
+			t.Fatalf("failed test %s: %#v", k, err)
+		}
+		t.Log(string(pembytes))
+
+	}
+	t.Log("success Test_ConvertPublicKeyJWKOpenSSHPublicKeyEd25519")
+}
 func Test_ConvertPublicKeyJWKEcdsaPublicKey(t *testing.T) {
 
 	publickey := `-----BEGIN EC PUBLIC KEY-----

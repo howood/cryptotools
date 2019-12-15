@@ -34,15 +34,15 @@ func (ce *CryptoEcdsa) Encrypt(input []byte) ([]byte, error) {
 	}
 	x, _ := ce.ecdsakey.PublicKey.Curve.ScalarMult(ce.ecdsakey.PublicKey.X, ce.ecdsakey.PublicKey.Y, ephemeral.D.Bytes())
 	if x == nil {
-		return nil, errors.New("Failed to generate encryption key")
+		return nil, errors.New("fail to generate encryptionkey")
 	}
 	shared := sha256.Sum256(x.Bytes())
-	iv, err := makeRandom(16)
+	iv, err := makeRandomData(16)
 	if err != nil {
 		return nil, err
 	}
 
-	paddedIn := addPadding(input)
+	paddedIn := addPaddingBlock(input)
 	ct, err := encryptCBC(paddedIn, iv, shared[:16])
 	if err != nil {
 		return nil, err
@@ -68,18 +68,18 @@ func (ce *CryptoEcdsa) Decrypt(input []byte) ([]byte, error) {
 	ephPub := input[1 : 1+ephLen]
 	ct := input[1+ephLen:]
 	if len(ct) < (sha1.Size + aes.BlockSize) {
-		return nil, errors.New("Invalid ciphertext")
+		return nil, errors.New("Invalid inputdata")
 	}
 
 	x, y := elliptic.Unmarshal(ce.ecdsakey.PrivateKey.Curve, ephPub)
-	ok := ce.ecdsakey.PrivateKey.Curve.IsOnCurve(x, y) // Rejects the identity point too.
+	ok := ce.ecdsakey.PrivateKey.Curve.IsOnCurve(x, y)
 	if x == nil || !ok {
-		return nil, errors.New("Invalid public key")
+		return nil, errors.New("Invalid Key curve")
 	}
 
 	x, _ = ce.ecdsakey.PrivateKey.Curve.ScalarMult(x, y, ce.ecdsakey.PrivateKey.D.Bytes())
 	if x == nil {
-		return nil, errors.New("Failed to generate encryption key")
+		return nil, errors.New("Failed to generate encryptionkey")
 	}
 	shared := sha256.Sum256(x.Bytes())
 
@@ -95,8 +95,7 @@ func (ce *CryptoEcdsa) Decrypt(input []byte) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return removePadding(paddedOut)
-
+	return removePaddingBlock(paddedOut)
 }
 
 // EncryptWithBase64 encrypts a input data to base64 string

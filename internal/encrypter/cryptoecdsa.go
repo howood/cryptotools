@@ -1,11 +1,17 @@
 package encrypter
 
 import (
+	"crypto/aes"
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/base64"
+	"errors"
 
 	"github.com/howood/cryptotools/internal/entity"
-	"github.com/howood/ecies"
 )
 
 // CryptoEcdsa represents Ecdsa encryption struct
@@ -22,15 +28,75 @@ func NewCryptoEcdsa(ecdsakey *entity.EcdsaKey) *CryptoEcdsa {
 
 // Encrypt encrypts a input data
 func (ce *CryptoEcdsa) Encrypt(input []byte) ([]byte, error) {
-	pub := ecies.ImportECDSAPublic(ce.ecdsakey.PublicKey)
-	return ecies.Encrypt(rand.Reader, pub, input, nil, nil)
+	ephemeral, err := ecdsa.GenerateKey(ce.ecdsakey.PublicKey.Curve, rand.Reader)
+	if err != nil {
+		return nil, err
+	}
+	x, _ := ce.ecdsakey.PublicKey.Curve.ScalarMult(ce.ecdsakey.PublicKey.X, ce.ecdsakey.PublicKey.Y, ephemeral.D.Bytes())
+	if x == nil {
+		return nil, errors.New("Failed to generate encryption key")
+	}
+	shared := sha256.Sum256(x.Bytes())
+	iv, err := makeRandom(16)
+	if err != nil {
+		return nil, err
+	}
 
+	paddedIn := addPadding(input)
+	ct, err := encryptCBC(paddedIn, iv, shared[:16])
+	if err != nil {
+		return nil, err
+	}
+
+	ephPub := elliptic.Marshal(ce.ecdsakey.PublicKey.Curve, ephemeral.PublicKey.X, ephemeral.PublicKey.Y)
+	out := make([]byte, 1+len(ephPub)+16)
+	out[0] = byte(len(ephPub))
+	copy(out[1:], ephPub)
+	copy(out[1+len(ephPub):], iv)
+	out = append(out, ct...)
+
+	h := hmac.New(sha1.New, shared[16:])
+	h.Write(iv)
+	h.Write(ct)
+	out = h.Sum(out)
+	return out, nil
 }
 
 // Decrypt decrypts a input data
 func (ce *CryptoEcdsa) Decrypt(input []byte) ([]byte, error) {
-	pri := ecies.ImportECDSA(ce.ecdsakey.PrivateKey)
-	return pri.Decrypt(rand.Reader, input, nil, nil)
+	ephLen := int(input[0])
+	ephPub := input[1 : 1+ephLen]
+	ct := input[1+ephLen:]
+	if len(ct) < (sha1.Size + aes.BlockSize) {
+		return nil, errors.New("Invalid ciphertext")
+	}
+
+	x, y := elliptic.Unmarshal(ce.ecdsakey.PrivateKey.Curve, ephPub)
+	ok := ce.ecdsakey.PrivateKey.Curve.IsOnCurve(x, y) // Rejects the identity point too.
+	if x == nil || !ok {
+		return nil, errors.New("Invalid public key")
+	}
+
+	x, _ = ce.ecdsakey.PrivateKey.Curve.ScalarMult(x, y, ce.ecdsakey.PrivateKey.D.Bytes())
+	if x == nil {
+		return nil, errors.New("Failed to generate encryption key")
+	}
+	shared := sha256.Sum256(x.Bytes())
+
+	tagStart := len(ct) - sha1.Size
+	h := hmac.New(sha1.New, shared[16:])
+	h.Write(ct[:tagStart])
+	mac := h.Sum(nil)
+	if !hmac.Equal(mac, ct[tagStart:]) {
+		return nil, errors.New("Invalid MAC")
+	}
+
+	paddedOut, err := decryptCBC(ct[aes.BlockSize:tagStart], ct[:aes.BlockSize], shared[:16])
+	if err != nil {
+		return nil, err
+	}
+	return removePadding(paddedOut)
+
 }
 
 // EncryptWithBase64 encrypts a input data to base64 string

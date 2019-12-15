@@ -5,6 +5,9 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
+	mathrand "math/rand"
+
+	"golang.org/x/crypto/ssh"
 )
 
 const (
@@ -44,7 +47,7 @@ func GenerateEncryptedED25519DER() ([]byte, []byte, error) {
 		return nil, nil, err
 	}
 
-	derPrivateKey, err := x509.MarshalPKCS8PrivateKey(privatekey)
+	derPrivateKey := marshalED25519PrivateKey(privatekey)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -52,10 +55,72 @@ func GenerateEncryptedED25519DER() ([]byte, []byte, error) {
 	if err != nil {
 		return nil, nil, err
 	}
+
 	return derPrivateKey, derED25519PublicKey, nil
 }
 
 // GenerateED25519Keys generates DER type ED25519 private key and public key
 func GenerateED25519Keys() (ed25519.PublicKey, ed25519.PrivateKey, error) {
 	return ed25519.GenerateKey(rand.Reader)
+}
+
+func marshalED25519PrivateKey(key ed25519.PrivateKey) []byte {
+	magic := append([]byte("openssh-key-v1"), 0)
+
+	var w struct {
+		CipherName   string
+		KdfName      string
+		KdfOpts      string
+		NumKeys      uint32
+		PubKey       []byte
+		PrivKeyBlock []byte
+	}
+
+	pk1 := struct {
+		Check1  uint32
+		Check2  uint32
+		Keytype string
+		Pub     []byte
+		Priv    []byte
+		Comment string
+		Pad     []byte `ssh:"rest"`
+	}{}
+
+	ci := mathrand.Uint32()
+	pk1.Check1 = ci
+	pk1.Check2 = ci
+	pk1.Keytype = ssh.KeyAlgoED25519
+
+	pk, ok := key.Public().(ed25519.PublicKey)
+	if !ok {
+		return nil
+	}
+	pubKey := []byte(pk)
+	pk1.Pub = pubKey
+	pk1.Priv = []byte(key)
+	pk1.Comment = ""
+
+	bs := 8
+	blockLen := len(ssh.Marshal(pk1))
+	padLen := (bs - (blockLen % bs)) % bs
+	pk1.Pad = make([]byte, padLen)
+
+	for i := 0; i < padLen; i++ {
+		pk1.Pad[i] = byte(i + 1)
+	}
+
+	prefix := []byte{0x0, 0x0, 0x0, 0x0b}
+	prefix = append(prefix, []byte(ssh.KeyAlgoED25519)...)
+	prefix = append(prefix, []byte{0x0, 0x0, 0x0, 0x20}...)
+
+	w.CipherName = "none"
+	w.KdfName = "none"
+	w.KdfOpts = ""
+	w.NumKeys = 1
+	w.PubKey = append(prefix, pubKey...)
+	w.PrivKeyBlock = ssh.Marshal(pk1)
+
+	magic = append(magic, ssh.Marshal(w)...)
+
+	return magic
 }

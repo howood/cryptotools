@@ -2,9 +2,6 @@ github.com/ScaleFT/sshkeys v0.0.0-20181112160850-82451a803681 h1:JS2rl38kZmHgWa0
 github.com/ScaleFT/sshkeys v0.0.0-20181112160850-82451a803681/go.mod h1:WfDateMPQ/55dPbZRp5Zxrux5WiEaHsjk9puUhz0KgY=
 github.com/dchest/bcrypt_pbkdf v0.0.0-20150205184540-83f37f9c154a h1:saTgr5tMLFnmy/yg3qDTft4rE5DY2uJ/cCxCe3q0XTU=
 github.com/dchest/bcrypt_pbkdf v0.0.0-20150205184540-83f37f9c154a/go.mod h1:Bw9BbhOJVNR+t0jCqx2GC6zv0TGBsShs56Y3gfSCvl0=
-github.com/howood/ecies v0.0.0-20150213224233-7c0f4a9b18d9 h1:noEam0CBqejmfrPb03UYq6GnhpHimKlQjZcghOx6354=
-github.com/howood/ecies v0.0.0-20150213224233-7c0f4a9b18d9/go.mod h1:2ED9naaZT6Zb4WRM4gJ5gP0WrfqWrjOVCFnyeulefXc=
-github.com/obscuren/ecies v0.0.0-20150213224233-7c0f4a9b18d9/go.mod h1:Pxvzt51U7dqynm0OJwBLWHPfHygNVxGrxXE8AS16xf0=
 github.com/segmentio/ksuid v1.0.2 h1:9yBfKyw4ECGTdALaF09Snw3sLJmYIX6AbPJrAy6MrDc=
 github.com/segmentio/ksuid v1.0.2/go.mod h1:BXuJDr2byAiHuQaQtSKoXh1J0YmUDurywOXgB2w+OSU=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=

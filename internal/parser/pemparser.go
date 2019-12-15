@@ -8,11 +8,11 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	mathrand "math/rand"
 
 	"github.com/ScaleFT/sshkeys"
-	"golang.org/x/crypto/ssh"
-
 	"github.com/howood/cryptotools/internal/entity"
+	"golang.org/x/crypto/ssh"
 )
 
 const (
@@ -125,7 +125,7 @@ func EncodePrivateKey(encryptkey *entity.EncryptKey) ([]byte, error) {
 	case entity.EncryptTypeECDSA:
 		return EncodeEcdsaPrivateKey(encryptkey.EcdsaKey.PrivateKey)
 	case entity.EncryptTypeED25519:
-		return EncodeEd25519PrivateKey(encryptkey.Ed25519Key.PrivateKey)
+		return EncodeEd25519PrivateKey(encryptkey.Ed25519Key.PrivateKey), nil
 	default:
 		return nil, errors.New("No encryptkey KeyType")
 	}
@@ -174,18 +174,15 @@ func EncodeEcdsaPrivateKey(prikey *ecdsa.PrivateKey) ([]byte, error) {
 }
 
 // EncodeEd25519PrivateKey encodes ED25519 private key to bytes
-func EncodeEd25519PrivateKey(prikey ed25519.PrivateKey) ([]byte, error) {
-	prikeybytes, err := x509.MarshalPKCS8PrivateKey(prikey)
-	if err != nil {
-		return nil, err
-	}
+func EncodeEd25519PrivateKey(prikey ed25519.PrivateKey) []byte {
+	prikeybytes := MarshalED25519PrivateKey(prikey)
 	pemdata := pem.EncodeToMemory(
 		&pem.Block{
 			Type:  blockTypeOpenSSHPrivateKey,
 			Bytes: prikeybytes,
 		},
 	)
-	return pemdata, nil
+	return pemdata
 }
 
 // EncodePublicKey encodes public key to bytes
@@ -284,4 +281,66 @@ func castPublicKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.Encr
 	default:
 		return errors.New("not RSA / ECDSA / ED25519 public key")
 	}
+}
+
+// MarshalED25519PrivateKey marshal ED25519 privatekey to bytes
+func MarshalED25519PrivateKey(key ed25519.PrivateKey) []byte {
+	magic := append([]byte("openssh-key-v1"), 0)
+
+	var w struct {
+		CipherName   string
+		KdfName      string
+		KdfOpts      string
+		NumKeys      uint32
+		PubKey       []byte
+		PrivKeyBlock []byte
+	}
+
+	pk1 := struct {
+		Check1  uint32
+		Check2  uint32
+		Keytype string
+		Pub     []byte
+		Priv    []byte
+		Comment string
+		Pad     []byte `ssh:"rest"`
+	}{}
+
+	ci := mathrand.Uint32()
+	pk1.Check1 = ci
+	pk1.Check2 = ci
+	pk1.Keytype = ssh.KeyAlgoED25519
+
+	pk, ok := key.Public().(ed25519.PublicKey)
+	if !ok {
+		return nil
+	}
+	pubKey := []byte(pk)
+	pk1.Pub = pubKey
+	pk1.Priv = []byte(key)
+	pk1.Comment = ""
+
+	bs := 8
+	blockLen := len(ssh.Marshal(pk1))
+	padLen := (bs - (blockLen % bs)) % bs
+	pk1.Pad = make([]byte, padLen)
+
+	for i := 0; i < padLen; i++ {
+		pk1.Pad[i] = byte(i + 1)
+	}
+
+	prefix := []byte{0x0, 0x0, 0x0, 0x0b}
+	prefix = append(prefix, []byte(ssh.KeyAlgoED25519)...)
+	prefix = append(prefix, []byte{0x0, 0x0, 0x0, 0x20}...)
+
+	w.CipherName = "none"
+	w.KdfName = "none"
+	w.KdfOpts = ""
+	w.NumKeys = 1
+	w.PubKey = append(prefix, pubKey...)
+	w.PrivKeyBlock = ssh.Marshal(pk1)
+
+	magic = append(magic, ssh.Marshal(w)...)
+
+	return magic
 }

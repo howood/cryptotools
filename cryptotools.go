@@ -13,6 +13,8 @@ const (
 	EncryptTypeRSA publickeycrypto.EncryptKeyType = publickeycrypto.EncryptTypeRSA
 	// EncryptTypeECDSA is ECDSASA KeyType
 	EncryptTypeECDSA publickeycrypto.EncryptKeyType = publickeycrypto.EncryptTypeECDSA
+	// EncryptTypeED25519 is ED25519 KeyType
+	EncryptTypeED25519 publickeycrypto.EncryptKeyType = publickeycrypto.EncryptTypeED25519
 )
 
 // NewCommonKeyCrypto create CommonKeyCrypto

@@ -215,10 +215,12 @@ func generateEncryptKey(bits int, encryptType EncryptKeyType) (entity.EncryptKey
 	case EncryptTypeED25519:
 		var err error
 		encryptkey.Keytype = entity.EncryptTypeED25519
-		encryptkey.Ed25519Key.PublicKey, encryptkey.Ed25519Key.PrivateKey, err = generator.GenerateED25519Keys()
+		publicKey, privateKey, err := generator.GenerateED25519Keys()
 		if err != nil {
 			return encryptkey, err
 		}
+		encryptkey.Ed25519Key.PublicKey = &publicKey
+		encryptkey.Ed25519Key.PrivateKey = &privateKey
 	}
 	return encryptkey, nil
 }

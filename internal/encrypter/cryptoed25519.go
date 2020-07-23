@@ -5,6 +5,7 @@ import (
 	"crypto/sha512"
 	"encoding/base64"
 	"errors"
+	"unsafe"
 
 	"github.com/howood/cryptotools/internal/encrypter/edwards25519"
 	"github.com/howood/cryptotools/internal/entity"
@@ -98,7 +99,8 @@ func (ce *CryptoEd25519) DecryptWithBase64(input string) ([]byte, error) {
 func (ce *CryptoEd25519) privateKeyToCurve25519() []byte {
 	var curve25519Private [32]byte
 	h := sha512.New()
-	h.Write(ce.ed25519key.PrivateKey[:32])
+	privatekey := *(*[]byte)(unsafe.Pointer(ce.ed25519key.PrivateKey))
+	h.Write(privatekey[:32])
 	digest := h.Sum(nil)
 
 	digest[0] &= 248
@@ -112,7 +114,8 @@ func (ce *CryptoEd25519) privateKeyToCurve25519() []byte {
 func (ce *CryptoEd25519) publicKeyToCurve25519() ([]byte, error) {
 	var curve25519Public, publickeyBytes [32]byte
 	var A edwards25519.ExtendedGroupElement
-	copy(publickeyBytes[:], ce.ed25519key.PublicKey)
+	pubkey := *(*[]byte)(unsafe.Pointer(ce.ed25519key.PublicKey))
+	copy(publickeyBytes[:], pubkey)
 	if !A.FromBytes(&publickeyBytes) {
 		return nil, errors.New("cannot convert to Curve25519 publickey")
 	}

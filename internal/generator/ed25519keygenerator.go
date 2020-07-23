@@ -46,7 +46,7 @@ func GenerateEncryptedED25519DER() ([]byte, []byte, error) {
 		return nil, nil, err
 	}
 
-	derPrivateKey := parser.MarshalED25519PrivateKey(privatekey)
+	derPrivateKey := parser.MarshalED25519PrivateKey(&privatekey)
 	if err != nil {
 		return nil, nil, err
 	}

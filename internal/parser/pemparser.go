@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	mathrand "math/rand"
+	"unsafe"
 
 	"github.com/ScaleFT/sshkeys"
 	"github.com/howood/cryptotools/internal/entity"
@@ -174,7 +175,7 @@ func EncodeEcdsaPrivateKey(prikey *ecdsa.PrivateKey) ([]byte, error) {
 }
 
 // EncodeEd25519PrivateKey encodes ED25519 private key to bytes
-func EncodeEd25519PrivateKey(prikey ed25519.PrivateKey) []byte {
+func EncodeEd25519PrivateKey(prikey *ed25519.PrivateKey) []byte {
 	prikeybytes := MarshalED25519PrivateKey(prikey)
 	pemdata := pem.EncodeToMemory(
 		&pem.Block{
@@ -230,8 +231,8 @@ func EncodeEcdsaPublicKey(pubkey *ecdsa.PublicKey) ([]byte, error) {
 }
 
 // EncodeED25519PublicKey encodes public key to bytes
-func EncodeED25519PublicKey(pubkey ed25519.PublicKey) ([]byte, error) {
-	prikeybytes, err := x509.MarshalPKIXPublicKey(pubkey)
+func EncodeED25519PublicKey(pubkey *ed25519.PublicKey) ([]byte, error) {
+	prikeybytes, err := x509.MarshalPKIXPublicKey(*pubkey)
 	if err != nil {
 		return nil, err
 	}
@@ -255,8 +256,12 @@ func castPrivateKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.Enc
 		encryptkey.EcdsaKey.PrivateKey = priv
 		encryptkey.Keytype = entity.EncryptTypeECDSA
 		return nil
-	case ed25519.PrivateKey:
+	case *ed25519.PrivateKey:
 		encryptkey.Ed25519Key.PrivateKey = priv
+		encryptkey.Keytype = entity.EncryptTypeED25519
+		return nil
+	case ed25519.PrivateKey:
+		encryptkey.Ed25519Key.PrivateKey = &priv
 		encryptkey.Keytype = entity.EncryptTypeED25519
 		return nil
 	default:
@@ -274,8 +279,12 @@ func castPublicKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.Encr
 		encryptkey.EcdsaKey.PublicKey = priv
 		encryptkey.Keytype = entity.EncryptTypeECDSA
 		return nil
-	case ed25519.PublicKey:
+	case *ed25519.PublicKey:
 		encryptkey.Ed25519Key.PublicKey = priv
+		encryptkey.Keytype = entity.EncryptTypeED25519
+		return nil
+	case ed25519.PublicKey:
+		encryptkey.Ed25519Key.PublicKey = &priv
 		encryptkey.Keytype = entity.EncryptTypeED25519
 		return nil
 	default:
@@ -284,7 +293,7 @@ func castPublicKeyToEncryptKey(keyInterface interface{}, encryptkey *entity.Encr
 }
 
 // MarshalED25519PrivateKey marshal ED25519 privatekey to bytes
-func MarshalED25519PrivateKey(key ed25519.PrivateKey) []byte {
+func MarshalED25519PrivateKey(key *ed25519.PrivateKey) []byte {
 	magic := append([]byte("openssh-key-v1"), 0)
 
 	var w struct {
@@ -317,7 +326,7 @@ func MarshalED25519PrivateKey(key ed25519.PrivateKey) []byte {
 	}
 	pubKey := []byte(pk)
 	pk1.Pub = pubKey
-	pk1.Priv = []byte(key)
+	pk1.Priv = []byte(*(*[]byte)(unsafe.Pointer(key)))
 	pk1.Comment = ""
 
 	bs := 8

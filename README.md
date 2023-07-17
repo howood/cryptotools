@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/howood/cryptotools.svg?branch=master)](https://travis-ci.org/howood/cryptotools)
+[![Build Status](https://github.com/howood/cryptotools/actions/workflows/test.yml/badge.svg?branch=master)][actions]
 [![GitHub release](http://img.shields.io/github/release/howood/cryptotools.svg?style=flat-square)][release]
 [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white&style=flat-square)](https://pkg.go.dev/github.com/howood/cryptotools)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/602d3da6bcbbadcbd255/test_coverage)](https://codeclimate.com/github/howood/cryptotools/test_coverage)
